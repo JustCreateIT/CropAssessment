@@ -1,0 +1,28 @@
+<div class="container">
+    <h1>What Would You Like To Do?</h1>
+    <div class="input-box">
+        <!-- echo out the system feedback (error and success messages) -->
+        <?php $this->renderFeedbackMessages(); ?>
+		<p>
+			<form method="post" action="<?php echo Config::get('URL');?>dashboard/selection_action">
+				<?php if($this->account_type !== 'standard'){ ?>
+				<!-- Setup & Configuration landing page -->
+				<input type="submit" name="dashboard" value="Define Your Farm and Paddock Zones" <?php if($this->account_type == 'standard'){ echo 'disabled style="color: #777; background-color: transparent; border: 2px solid #777;"'; } ?>>
+				<?php } ?>
+				<!-- Enter Paddock Data landing page -->
+				<input type="submit" name="dashboard" value="Enter Collected Sample Data" <?php if(empty($this->farm_info) || empty($this->paddock_info)){ echo 'disabled style="color: #777; background-color: transparent; border: 2px solid #777;"'; } ?>>
+				<!-- View Assessments landing page -->
+				<input type="submit" name="dashboard" value="View Assessment Reports" <?php if($this->sample_info === false){ echo 'disabled style="color: #777; background-color: transparent; border: 2px solid #777;"'; } ?>>
+				<?php if($this->account_type == 'standard'){ ?>
+				<input type="submit" name="dashboard" value="View Farm Information" <?php if(empty($this->farm_info)){ echo 'disabled style="color: #777; background-color: transparent; border: 2px solid #777;"'; } ?>>
+				<?php } else { ?>
+				<input type="submit" name="dashboard" value="View Or Update Farm Information" <?php if(empty($this->farm_info)){ echo 'disabled style="color: #777; background-color: transparent; border: 2px solid #777;"'; } ?>>
+				<?php } ?>
+			</form>
+			<!-- Return to the home page -->
+			<div class="app-button" style="margin:0; padding:0;">                
+                <a href="<?php echo Config::get('URL'); ?>">Exit</a>
+            </div>			
+		</p>        
+    </div>
+</div>

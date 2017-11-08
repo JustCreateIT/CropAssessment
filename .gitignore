@@ -1,0 +1,15 @@
+# don't commit all the dependencies fetched via Composer
+composer.phar
+/vendor/
+# additional internal folders
+/_one-click-installation/
+/_pictures/
+/application/_installation/
+#codelite project file
+*.phprj
+#configuration
+config.*.php
+#old extension
+*.old
+#sql files
+*.sql
