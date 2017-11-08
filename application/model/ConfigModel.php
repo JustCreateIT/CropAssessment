@@ -190,15 +190,16 @@ class ConfigModel
 			paddock_address = :paddock_address,
 			paddock_area = :paddock_area 
 			WHERE paddock_id = :paddock_id";
+			
         $query = $database->prepare($sql);
+		
         $query->execute(array(':paddock_name' => $paddock_name, ':paddock_address' => $paddock_address, 
 			':paddock_area' => $paddock_area, ':paddock_id' => $paddock_id));
 
         if ($query->rowCount() == 1) {
 			Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_EDITING_SUCCESSFUL'));
             return true;
-        }
-		Session::add('feedback_negative', Text::get('FEEDBACK_PADDOCK_EDITING_FAILED'));
+        }		
         return false;
     }
 
