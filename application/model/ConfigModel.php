@@ -166,7 +166,6 @@ class ConfigModel
 			Session::add('feedback_positive', Text::get('FEEDBACK_FARM_EDITING_SUCCESSFUL'));
             return true;
         }
-
         return false;
     }
 	
@@ -241,8 +240,7 @@ class ConfigModel
         if ($query->rowCount() == 1) {
 			Session::add('feedback_positive', Text::get('FEEDBACK_CROP_EDITING_SUCCESSFUL'));
             return true;
-        }
-		Session::add('feedback_negative', Text::get('FEEDBACK_CROP_EDITING_FAILED'));
+        }		
         return false;
     }	
 	
