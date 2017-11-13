@@ -68,6 +68,7 @@
 			echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
 			echo "\r\n\t";			
 			echo '<script src="'.Config::get('URL').'scripts/reports.js"></script>';
+			echo "\r\n\t";
 			break;
 		case '2':	// growth_stage => three leaf 	
 		case '3':	// growth_stage => five leaf 	
@@ -79,6 +80,19 @@
 			echo '<script src="'.Config::get('URL').'scripts/imageEmail.js"></script>';
 			echo "\r\n\t";			
 			echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';
+			break;			
+		case 'emergence':
+		case 'threeleaf':
+		case 'fiveleaf':
+		case 'bulbing':
+		case 'harvest':
+			// report pages need responsive tables
+			echo '<script src="'.Config::get('URL').'scripts/jquery-responsiveTables.js"></script>';
+			echo "\r\n\t";
+			echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
+			echo "\r\n\t";
+			echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
+			echo "\r\n";
 			break;
 		default:       
     } ?>
@@ -142,11 +156,17 @@
             <?php // UAT(administator)=88, UAT(owner)=9, UAT(standard)=5, UAT(public)=1
 			if (Session::get("user_account_type") == 88) : ?>
 				<!-- Administration section -->
-                <li <?php if (View::checkForActiveController($filename, "admin")) {
-                    echo ' class="active" ';
-                } ?> >
-                    <a href="<?php echo Config::get('URL'); ?>admin/">Admin</a>					
-                </li>
+				<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
+					<a href="<?php echo Config::get('URL'); ?>admin/index">Admin</a>
+					<ul class="navigation-submenu">
+						<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
+							<a href="<?php echo Config::get('URL'); ?>admin/">Account Administration</a>
+						</li>
+						<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
+							<a href="<?php echo Config::get('URL'); ?>admin/link">Link User To Farm</a>
+						</li>
+					</ul>
+				</li>
             <?php endif; ?>
         <?php endif; ?>
         </ul>

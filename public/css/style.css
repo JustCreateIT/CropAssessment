@@ -12,7 +12,8 @@ body {
 
 h1 { 
 	font-size: 1.5em;
-	height: 42px;
+	height: 2em;
+	margin: 10px;
 	/*white-space:nowrap;*/
 }
 
@@ -468,8 +469,8 @@ div .app-button {
 
 
 .float_left {
-	font-size: 1em;
-	width: 49%;
+	font-size: 0.8em;
+	width: 48%;
 	float: left;
 	margin: 0 3px 0 0;
 	padding: 0 auto;
@@ -478,8 +479,8 @@ div .app-button {
 }
 
 .float_right {
-	font-size: 1em;
-	width: 49%;
+	font-size: 0.8em;
+	width: 48%;
 	float: right;
 	margin: 0 0 0 2px;
 	padding: 0 auto;
@@ -903,6 +904,55 @@ table.report-table {
 	width: 1px;
 }
 
+.responsive table {
+	/*display:inline-table;*/
+	width:100%;
+	margin: 0px;
+	margin: 0 0 10px 0;
+	padding: 0px;	
+	box-sizing: border-box;
+	text-align: center;
+
+	/*min-width: 680px;*/
+}
+
+.responsive table thead tbody tfoot tr th td {
+	/*display:inline-table;*/
+	border-collapse: collapse;
+	
+		
+}
+
+.responsive th {
+	font-weight: bold;
+	color:#333;
+	background-color: #ddd;
+	text-transform: none;
+	padding: 7px;
+	
+}
+
+
+.responsive tr {
+	background-color: white;
+	width: 100%;	
+    box-sizing: border-box;
+	white-space:nowrap;
+}
+
+.responsive td {
+	text-transform: none;
+}
+
+.report-header td {
+	color: #111;
+	background-color: #ddd;	
+	padding: 5px;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+
 td.comment_cell {
 	text-align:left;
 	width:65%;
@@ -919,6 +969,7 @@ td.col-last {
 	padding: 5px;
 	font-size: 1.1em;
 	font-weight: bold;
+	text-transform: none;
 }
 
 .data-table {
@@ -1100,6 +1151,12 @@ td.col-last {
 	flex: 1;
 }
 
+.container_center > div > label {
+	font-size: 0.9em;
+	font-weight:bold;
+	text-transform:none;
+}
+
 .container_center input[type="submit"],
 .container_center input[type="submit"]:active,
 .container_center input[type="submit"]:visited,
@@ -1187,10 +1244,11 @@ input[type="submit"].imgEmail,
 input[type="submit"].imgEmail:focus
 { 
 	display: inline-block;	
-	background-position:  0px 0px;
+	background-position:  0px 0px;	
 	background-repeat: no-repeat;
-	width: 45px;
-	height: 45px;
+	background-size: contain;	
+	width: 30px;
+	height: 30px;
 	border: 0px;
 	background-color: transparent;
 	cursor: pointer;
@@ -1221,7 +1279,8 @@ input[type="submit"].imgCSV:hover,
 input[type="submit"].imgEmail:active,
 input[type="submit"].imgEmail:hover
 { 
-  background-position:  -1px -1px;
+  background-position:  -1px -1px;  
+  padding:0px; 
   background-color: transparent;
   color: transparent;
 }
