@@ -953,7 +953,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 				<script src="'.Config::get('URL').'scripts/charting_plots.js"></script>
 				<div class="container">
 					<form method="post" action="'.Config::get('URL').'reports/assessment_action">
-					<h1>'.ucwords($report_name).' Assessment<span style="float:right;"><input type="submit" value="Save As PDF" name="assessment" id="save_pdf_image" title="Save PDF" class="imgPDF" /></span>
+					<h1 class="responsive" data-compression="20" data-min="8" data-max="24">'.ucwords($report_name).' Assessment<span style="float:right;"><input type="submit" value="Save As PDF" name="assessment" id="save_pdf_image" title="Save PDF" class="imgPDF" /></span>
 						<span style="float:right;"><input type="submit" value="Export To CSV" name="assessment" id="export_csv_image" title="Export CSV" class="imgCSV" /></span>
 						<span style="float:right;"><input type="submit" value="Send Via Email" name="assessment" id="send_email_image" title="Email Report" class="imgEmail" '.$state.'/></span>
 					</h1>
@@ -994,14 +994,10 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		$url = Config::get("URL")."reports";
 		
 		$navigation = '<div class="container_bottom_navigation">
-			<span style="float:left; width:90%"><!-- Return to assessment selection page -->
-				<div class="app-button" style="margin:2px 0; padding:0;">                
-					<a class="buttonBack" href="'.$url.'">Back</a>
-				</div>
-			</span>
-				<span style="float:right;"><input type="submit" value="Send Via Email" name="assessment" id="send_email_image" title="Email Report" class="imgEmail" '.$disabled.'/></span>
-				<span style="float:right;"><input type="submit" value="Export To CSV" name="assessment" id="export_csv_image" title="Export CSV" class="imgCSV" /></span>					
-				<span style="float:right;"><input type="submit" value="Save As PDF" name="assessment" id="save_pdf_image" title="Save PDF" class="imgPDF" /></span>					
+			<!-- Return to assessment selection page -->
+			<div class="app-button" style="margin:2px 0; padding:0;">                
+				<a class="buttonBack" href="'.$url.'">Back</a>
+			</div>			
 		</div>
 	</div>
 	</form>
@@ -1455,9 +1451,9 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 			$objReport = new Report($farm_id, $paddock_id, $crop_id, $growth_stage_id);
 			
 			$html = $objReport->HTMLReport_farmInfo().
-					$objReport->HTMLReport_table().
+					$objReport->HTMLReport_table(true).
 					$objReport->HTMLReport_charts().					
-					$objReport->HTMLReport_data();
+					$objReport->HTMLReport_data(true);
 		
 		// create PDF or send email report
 		} else {
@@ -1495,9 +1491,9 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 			$html = $objReport->HTMLReport_styles().
 					$objReport->HTMLReport_header().					
 					$objReport->HTMLReport_farmInfo(true).
-					$objReport->HTMLReport_table().					
+					$objReport->HTMLReport_table(false).					
 					$objReport->HTMLReport_charts($imageData, $imageSummaryData).					
-					$objReport->HTMLReport_data();
+					$objReport->HTMLReport_data(false);
 			
 			// With footer        
 			if(isset($footer)){			
