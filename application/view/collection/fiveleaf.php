@@ -85,7 +85,7 @@
 				<input type="hidden" name="crop_id" value="<?php echo $this->crop_id ?>"/>
 				<div class="submit_float_left"> 
 					<div class="app-button" style="margin:0; padding:0;">                
-						<a href="<?php echo Config::get('URL'); ?>setup">Back</a>
+						<a href="<?php echo Config::get('URL'); ?>collection">Back</a>
 					</div>				</div>
 				<div class="submit_float_left">
 					<input type="submit" value="Upload Data" <?php if((Session::get("user_account_type") == 1)){ echo 'disabled style="color: #ccc; background-color: transparent; border: 2px solid #ccc;"'; } ?>>
