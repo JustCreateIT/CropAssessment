@@ -17,19 +17,19 @@
 			<?php  } ?>
 			<button type="submit" name="setup" value="farm"><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/farm_setup.png"/>
-				<figcaption class="caption">Setup A New Farm</figcaption>
+				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Farm</figcaption>
 			</figure></button>
 			<button type="submit" name="setup" value="paddock"><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/paddock_setup.png"/>
-				<figcaption class="caption">Setup A New Paddock</figcaption>
+				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Paddock</figcaption>
 			</figure></button>
 			<button type="submit" name="setup" value="crop"><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/crop_setup.png"/>
-				<figcaption class="caption">Define A New Crop</figcaption>
+				<figcaption class="responsive caption" data-min="10" data-max="18">Define A New Crop</figcaption>
 			</figure></button>
 			<button type="submit" name="setup" value="user"><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/add_user.png"/>
-				<figcaption class="caption">Add Users To Your Farm</figcaption>
+				<figcaption class="responsive caption" data-min="10" data-max="18">Add Users To Your Farm</figcaption>
 			</figure></button>
 		</form>		
     </div>

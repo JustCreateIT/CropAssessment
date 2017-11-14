@@ -25,6 +25,14 @@
 
 	//echo print_r($page, true);
 	
+	// responsive scripts 
+	echo '<script src="'.Config::get('URL').'scripts/jquery-responsiveTables.js"></script>';
+	echo "\r\n\t";
+	echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
+	echo "\r\n\t";
+	echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
+	echo "\r\n";
+
 	// simply adds the scripts required for the selected page view
     switch ($page){
 		case 'farm':
@@ -87,12 +95,14 @@
 		case 'bulbing':
 		case 'harvest':
 			// report pages need responsive tables
+			/*
 			echo '<script src="'.Config::get('URL').'scripts/jquery-responsiveTables.js"></script>';
 			echo "\r\n\t";
 			echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
 			echo "\r\n\t";
 			echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
 			echo "\r\n";
+			 */
 			break;
 		default:       
     } ?>
