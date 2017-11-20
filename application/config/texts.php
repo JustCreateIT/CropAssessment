@@ -83,6 +83,7 @@ return array(
     "FEEDBACK_NOTE_CREATION_FAILED" => "Note creation failed.",
     "FEEDBACK_NOTE_EDITING_FAILED" => "Note editing failed.",
     "FEEDBACK_NOTE_DELETION_FAILED" => "Note deletion failed.",
+	"FEEDBACK_USER_FARM_LINK_STATUS" => "User successfully linked to selected farms.",
 	"FEEDBACK_FARM_CREATION_SUCCESSFUL" => "Farm creation successful.",
     "FEEDBACK_FARM_CREATION_FAILED" => "Farm creation failed.",	
     "FEEDBACK_FARM_EDITING_FAILED" => "Farm editing failed.",

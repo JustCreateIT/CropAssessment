@@ -9,7 +9,7 @@
         <h3>View all users currently in the system</h3>
 
         <div>
-            As an Administrator you have the ability to soft delete or suspend a user, modify a user account type or view a user profile.
+            As an Administrator you have the ability to modify a user account type, add a user to a farm, view a user profile or soft delete or suspend a user.
         </div>
         <div>
             <table class="overview-table">			
@@ -20,6 +20,7 @@
 					<td>Account Type</td>					
                     <td>Activated</td>                    
 					<td>Full Name</td>
+					<td>Farms</td>
 					<td>View Profile</td>
                     <td>Suspend (Days)</td>
                     <td>Soft Delete</td>
@@ -41,6 +42,9 @@
 					} ?></select></td>
 					<td><?= ($user->user_active == 0 ? 'No' : 'Yes'); ?></td>
 					<td><?= $user->user_first_name; ?>&nbsp;<?= $user->user_last_name; ?></td>
+					<td>
+						<a href="<?= Config::get('URL') . 'admin/link/' . $user->user_id; ?>">Link Farms</a>
+					</td>	
 					<td>
 						<a href="<?= Config::get('URL') . 'profile/showProfile/' . $user->user_id; ?>">Profile</a>
 					</td>						

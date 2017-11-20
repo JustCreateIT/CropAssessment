@@ -21,9 +21,48 @@ class AdminController extends Controller
     {
         $this->View->render('admin/index', array(
                 'users' => UserModel::getPublicProfilesOfAllUsers(),
-				'account_types' => DatabaseCommon::getAccountTypes()
+				'account_types' => DatabaseCommon::getAccountTypes(),
+				'farms' => DatabaseCommon::getFarms()
         ));
     }
+	
+	public function link($user_id)
+    {
+		$farms = DatabaseCommon::getFarms();
+		//$users = UserModel::getPublicProfilesOfAllUsers();
+		if (isset($user_id)) {
+			$user = UserModel::getPublicProfileOfUser($user_id);
+		
+			$unlinked = array();
+			$i = 0;		
+			//foreach ($users as $user) {
+				foreach ($farms as $farm) {
+					// does this farm_id/user_id combo exist in farm_users table?
+					if ( !AdminModel::farmUserRowExists($user->user_id, $farm->farm_id) ){		
+						$unlinked[$i] = new stdClass();		
+						$unlinked[$i]->user_id = $user->user_id;
+						$unlinked[$i]->farm_id = $farm->farm_id;
+						$unlinked[$i]->farm_name = $farm->farm_name;
+						$i++;
+					}
+				}
+			//}
+		}
+		
+		/*
+		echo '<pre>';
+		 	print_r($user);
+		echo '</pre>';
+		*/
+		
+		$this->View->render('admin/link', array(
+			'user' => $user,
+			'farm_users' => DatabaseCommon::getLinkedFarmUsers(),
+			'farms_count' => count($farms),
+			'unlinked_farm_users' => $unlinked
+        ));
+    }
+
 
     public function actionAccountSettings()
     {
@@ -37,4 +76,15 @@ class AdminController extends Controller
 
         Redirect::to("admin");
     }
+	
+	
+	public function actionLinkFarmsToUser()
+    {
+		$linked_farms = Request::post('destination');
+		$user_id = Request::post('user_id');
+		
+		AdminModel::setUserFarms( $linked_farms, $user_id );
+
+        Redirect::to("admin");
+    }	
 }

@@ -117,6 +117,45 @@ class DatabaseCommon
 	}
 	
 	
+	public static function getFarms()
+	{
+	    $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT f.farm_id, f.farm_name		
+		FROM 
+			farm f";	
+		
+        $query = $database->prepare($sql);
+        $query->execute();
+
+        // fetchAll() is the PDO method that gets all result rows
+		
+		
+        return $query->fetchAll();			
+	}
+	
+		public static function getLinkedFarmUsers()
+	{
+	    $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT farm_users.user_id, farm_users.farm_id, farm.farm_name		
+			FROM 
+				farm
+			INNER JOIN
+				farm_users ON farm.farm_id = farm_users.farm_id
+			ORDER BY 
+				farm_users.user_id";	
+		
+        $query = $database->prepare($sql);
+        $query->execute();
+
+        // fetchAll() is the PDO method that gets all result rows
+		
+		
+        return $query->fetchAll();			
+	}
+
+	
 	/**
 	 * Are there samples available for this farm?
 	 * Don't care which paddock it is or if they've all been entered at this point?

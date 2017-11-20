@@ -13,7 +13,7 @@
     <!--<link rel="icon" href="data:;base64,=">-->
     <link rel="icon" href="<?php echo Config::get('URL'); ?>images/favicon.ico">
     <!-- CSS -->
-    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css">
+	<link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css">
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css"> 
 	  <!-- scripts -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -31,81 +31,88 @@
 	echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
 	echo "\r\n\t";
 	echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
-	echo "\r\n";
+	echo "\r\n\t";
 
+	
 	// simply adds the scripts required for the selected page view
-    switch ($page){
-		case 'farm':
-			echo '<script src="'.Config::get('URL').'scripts/farms.js"></script>';
-			break;
-		case 'paddock':
-			echo '<script src="'.Config::get('URL').'scripts/paddocks.js"></script>';
-			break;
-		case 'crop':
-			echo '<script src="'.Config::get('URL').'scripts/crops.js"></script>';
-			echo "\r\n\t";
-			echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
-			break;
-		case 'zones':
-			echo '<script src="'.Config::get('URL').'scripts/zones.js"></script>';
-			break;
-		case 'viewpaddock':
-			echo '<script src="'.Config::get('URL').'scripts/viewPaddock.js"></script>';
-			break;			
-		case 'draw':	
-			echo '<script src="'.Config::get('URL').'scripts/drawPaddock.js"></script>';
-			echo "\r\n\t";		
-			break;
-		case 'viewweather':
-			echo '<script src="'.Config::get('URL').'scripts/weather.js"></script>';			
-			break;
-		//case 'url=edit':			
-		//case 'url=map':
-		case 'user':
-		case 'addfarmuser':
-			echo '<script src="'.Config::get('URL').'scripts/addFarmUser.js"></script>';
-			echo "\r\n\t";		
-			echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';
-			echo "\r\n\t";		
-		case 'url=config':	// config/index			
-		case 'url=collection':	// collection/index			
-			echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
-			break;
-		case 'url=reports':	 // reports/index
-		case 'index':
-			echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
-			echo "\r\n\t";			
-			echo '<script src="'.Config::get('URL').'scripts/reports.js"></script>';
-			echo "\r\n\t";
-			break;
-		case '2':	// growth_stage => three leaf 	
-		case '3':	// growth_stage => five leaf 	
-			echo '<script src="'.Config::get('URL').'scripts/mean_leaf_number.js"></script>';
-			echo "\r\n\t";
-		case '4':	// growth_stage => bulbing
-		case '5':	// growth_stage => harvest
-		case 'enterdata':
-			echo '<script src="'.Config::get('URL').'scripts/imageEmail.js"></script>';
-			echo "\r\n\t";			
-			echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';
-			break;			
-		case 'emergence':
-		case 'threeleaf':
-		case 'fiveleaf':
-		case 'bulbing':
-		case 'harvest':
-			// report pages need responsive tables
-			/*
-			echo '<script src="'.Config::get('URL').'scripts/jquery-responsiveTables.js"></script>';
-			echo "\r\n\t";
-			echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
-			echo "\r\n\t";
-			echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
-			echo "\r\n";
-			 */
-			break;
-		default:       
-    } ?>
+	if (strpos($_SERVER['QUERY_STRING'], 'url=admin/link/') !== false ) {
+		//echo print_r(strpos($_SERVER['QUERY_STRING'], 'url=admin/link/', true));
+		echo '<script src="'.Config::get('URL').'scripts/link.js"></script>';
+	} else {
+	
+		switch ($page){
+			case 'farm':
+				echo '<script src="'.Config::get('URL').'scripts/farms.js"></script>';
+				break;
+			case 'paddock':
+				echo '<script src="'.Config::get('URL').'scripts/paddocks.js"></script>';
+				break;
+			case 'crop':
+				echo '<script src="'.Config::get('URL').'scripts/crops.js"></script>';
+				echo "\r\n\t";
+				echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
+				break;
+			case 'zones':
+				echo '<script src="'.Config::get('URL').'scripts/zones.js"></script>';
+				break;
+			case 'viewpaddock':
+				echo '<script src="'.Config::get('URL').'scripts/viewPaddock.js"></script>';
+				break;			
+			case 'draw':	
+				echo '<script src="'.Config::get('URL').'scripts/drawPaddock.js"></script>';
+				echo "\r\n\t";		
+				break;
+			case 'viewweather':
+				echo '<script src="'.Config::get('URL').'scripts/weather.js"></script>';			
+				break;
+			//case 'url=edit':			
+			//case 'url=map':
+			case 'user':
+			case 'addfarmuser':
+				echo '<script src="'.Config::get('URL').'scripts/addFarmUser.js"></script>';
+				echo "\r\n\t";		
+				echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';
+				echo "\r\n\t";		
+			case 'url=config':	// config/index			
+			case 'url=collection':	// collection/index			
+				echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
+				break;
+			case 'url=reports':	 // reports/index
+			case 'index':
+				echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
+				echo "\r\n\t";			
+				echo '<script src="'.Config::get('URL').'scripts/reports.js"></script>';
+				echo "\r\n\t";
+				break;
+			case '2':	// growth_stage => three leaf 	
+			case '3':	// growth_stage => five leaf 	
+				echo '<script src="'.Config::get('URL').'scripts/mean_leaf_number.js"></script>';
+				echo "\r\n\t";
+			case '4':	// growth_stage => bulbing
+			case '5':	// growth_stage => harvest
+			case 'enterdata':
+				echo '<script src="'.Config::get('URL').'scripts/imageEmail.js"></script>';
+				echo "\r\n\t";			
+				echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';
+				break;			
+			case 'emergence':
+			case 'threeleaf':
+			case 'fiveleaf':
+			case 'bulbing':
+			case 'harvest':
+				// report pages need responsive tables
+				/*
+				echo '<script src="'.Config::get('URL').'scripts/jquery-responsiveTables.js"></script>';
+				echo "\r\n\t";
+				echo '<script src="'.Config::get('URL').'scripts/jquery.responsiveText.js"></script>';
+				echo "\r\n\t";
+				echo '<script src="'.Config::get('URL').'scripts/responsive_report.js"></script>';
+				echo "\r\n";
+				 */
+				break;
+			default:       
+		} 
+	} ?>
 </head>
 <body>
     <!-- wrapper, to center website -->
@@ -168,14 +175,6 @@
 				<!-- Administration section -->
 				<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
 					<a href="<?php echo Config::get('URL'); ?>admin/index">Admin</a>
-					<ul class="navigation-submenu">
-						<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
-							<a href="<?php echo Config::get('URL'); ?>admin/">Account Administration</a>
-						</li>
-						<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
-							<a href="<?php echo Config::get('URL'); ?>admin/link">Link User To Farm</a>
-						</li>
-					</ul>
 				</li>
             <?php endif; ?>
         <?php endif; ?>

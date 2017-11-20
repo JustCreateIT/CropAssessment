@@ -27,6 +27,30 @@ class AdminModel
             return true;
         }
     }
+	
+	public static function setUserFarms($userFarms, $user_id)
+    {
+		
+		$database = DatabaseFactory::getFactory()->getConnection();
+		// remove any existing linked farms
+		$sql = "DELETE from farm_users WHERE user_id = :user_id";		
+		$query = $database->prepare($sql);
+        $query->execute(array( ':user_id' => $user_id ));
+		
+		// insert updated linked farms		
+		foreach ($userFarms as $farm_id){
+		
+			$sql = "INSERT INTO farm_users
+					(farm_id, user_id) 
+					VALUES 
+			(:farm_id, :user_id)"; 
+
+			$query = $database->prepare($sql);
+			$query->execute(array( ':farm_id' => $farm_id, ':user_id' => $user_id ));
+		}
+		Session::add('feedback_positive', Text::get('FEEDBACK_USER_FARM_LINK_STATUS'));
+		return true;
+    }
 
 	/**
      * Sets the deletion and suspension values
@@ -92,6 +116,23 @@ class AdminModel
             return true;
         }
     }
+	
+	
+		
+	
+	public static function farmUserRowExists($user_id, $farm_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT * FROM farm_users
+				WHERE farm_id = :farm_id
+				AND user_id = :user_id";
+	
+        $query = $database->prepare($sql);
+        $query->execute(array(':user_id' => $user_id, ':farm_id' => $farm_id));
+
+		return ((int)$query->rowCount() > 0 ? true : false);	
+	}
+	
 
     /**
      * Kicks the selected user out of the system instantly by resetting the user's session.

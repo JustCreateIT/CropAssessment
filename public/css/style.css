@@ -99,7 +99,7 @@ select {
     /*margin-top: 20px;	*/
 }
 .container table thead td {
-    background-color: #f5f5f5;
+    background-color: #f4f3f1;
     padding: 4px 10px;
 }
 .container table tbody td {
@@ -185,6 +185,14 @@ select {
     padding: 0px 25px 0px 0px;
     width: 150px;
 	display:inline-block;
+}
+
+.adminBtn input[type="submit"]:active, 
+.adminBtn input[type="submit"]:hover,
+.adminBtn button:hover,
+.adminBtn button,
+.adminBtn button:focus{
+	padding: 5px;
 }
 
 .imgfit{
@@ -274,8 +282,32 @@ select {
 .overview-table table {
 	display:inline-table;
     min-width: 680px;
-	margin: 2px;
-	padding: 5px;
+	margin: 0px;
+	padding: 2px;
+}
+
+.overview-table thead {
+	font-size:1.1em;	
+	font-weight:bolder;
+}
+
+.overview-table thead td{
+	text-align:left;
+}
+
+
+.overview-table td {
+	text-align:center;
+	vertical-align:middle;
+	font-size:1.1em;
+}
+
+.overview-table a{
+	color: #03f;
+}
+
+.overview-table td a:hover{
+	text-decoration:none;
 }
 
 
@@ -295,8 +327,16 @@ select {
 
 .overview-table input[type="submit"], 
 .overview-table input[type="submit"]:focus{
-	width: 75px;
+	width: auto;
+	min-width:75px;
 	height: 35px;
+}
+
+.overview-table button[type="button"], 
+.overview-table button[type="button"]:focus{
+	width: auto;
+	min-width:55px;
+	font-family: Open Sans;		
 }
 
 .overview-table input[type="submit"]:hover{
