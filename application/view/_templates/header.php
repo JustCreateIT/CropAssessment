@@ -56,6 +56,7 @@
 				echo '<script src="'.Config::get('URL').'scripts/zones.js"></script>';
 				break;
 			case 'viewpaddock':
+			case 'survey':
 				echo '<script src="'.Config::get('URL').'scripts/viewPaddock.js"></script>';
 				break;			
 			case 'draw':	

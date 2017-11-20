@@ -25,6 +25,7 @@
 				<input type="submit" name="reports" value="View Five Leaf Assessment" id="fiveleaf"/>
 				<input type="submit" name="reports" value="View Bulbing Assessment" id="bulbing"/>
 				<input type="submit" name="reports" value="View Harvest Assessment" id="harvest"/>
+				<input type="submit" name="reports" value="View Paddock Survey" id="survey"/>
 			<?php foreach ($this->report_info as $report_info) { ?>
 				<input type="hidden" name="<?= $report_info->paddock_name; ?>" id="<?= $report_info->paddock_id; ?>" value="<?= implode(',',$report_info->growth_stage_id); ?>">
 			<?php } ?>

@@ -30,6 +30,9 @@ function updateViewState(){
 	var paddock_name = $( "[name=paddock_id]" ).find(":selected").text();
 	var paddock_id = $( "[name=paddock_id]" ).find(":selected").val();
 	
+	// always show survey map
+	$( "#survey" ).prop("disabled", false);
+	
 	if ( $('#'+paddock_id).val() != null ) {
 		
 		var selected = $('#'+paddock_id).val();

@@ -63,6 +63,9 @@ class ReportsController extends Controller
 				case 'View Harvest Assessment':
 					$view = 'harvest';
 					break;	
+				case 'View Paddock Survey':
+					$view = 'survey';
+					break;	
 				default:
 				// To-do (trap error)		
 		}
@@ -114,7 +117,33 @@ class ReportsController extends Controller
     {
 		$page = Session::get('report_page');
 		self::viewAssessment($page);	
-    }	
+    }
+
+
+    public function survey()
+    {
+		$page = Session::get('report_page');
+		self::viewPaddock($page);	
+    }
+
+
+	public function viewPaddock()
+    {
+		
+		$farm_id = Session::get('selected_farm_id');
+		$paddock_id = Session::get('selected_paddock_id');
+		$crop_id = Session::get('selected_crop_id');					
+
+		$this->View->render('reports/survey', array(
+			'management_zone_map' => $farm_id.'_'.$paddock_id.'_'.$crop_id.'.kmz',
+			'paddock_google_latlong_paths' => json_decode(ConfigModel::getPaddockPolygonPathByID($paddock_id)),
+			'farm_name' => DatabaseCommon::getFarmNameByID($farm_id),
+			'paddock_name' => DatabaseCommon::getPaddockNameByID($paddock_id),
+			'paddock_plant_date' => DatabaseCommon::getCropPlantDate($crop_id),
+			'paddock_zones' => DatabaseCommon::getCropZoneCount($crop_id),			
+			'paddock_zone_sample_count' => DatabaseCommon::getCropZoneSampleCountByCropID($crop_id)
+        ));
+	}		
 
 
     public function viewAssessment($page)

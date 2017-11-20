@@ -8,6 +8,7 @@
     switch ($this_page){
 		case 'viewweather':
 		case 'viewpaddock':
+		case 'survey':
 		//case 'createpaddock':
 		case 'paddock':
 		case 'draw':	
