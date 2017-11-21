@@ -3,14 +3,10 @@
 <head>
     <title>Onions NZ: Management Action Zones Dashboard</title>
     <!-- META -->
-	<!--<meta name="viewport" content="width=980">
-	<meta name="viewport" content="width=device-width"><!--<meta name="viewport" content="width=980">-->
-	<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, min-width=500"/>-->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<!--<script type="text/javascript" src="viewport-min-width.js"></script>-->		
-    <meta charset="utf-8">
+	 <meta charset="utf-8">
     <!-- send empty favicon fallback to prevent user's browser hitting the server for lots of favicon requests resulting in 404s -->
-    <!--<link rel="icon" href="data:;base64,=">-->
+    <link rel="icon" href="data:;base64,=">
     <link rel="icon" href="<?php echo Config::get('URL'); ?>images/favicon.ico">
     <!-- CSS -->
 	<link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css">
@@ -58,7 +54,7 @@
 			case 'viewpaddock':
 			case 'survey':
 				echo '<script src="'.Config::get('URL').'scripts/viewPaddock.js"></script>';
-				break;			
+				break;		
 			case 'draw':	
 				echo '<script src="'.Config::get('URL').'scripts/drawPaddock.js"></script>';
 				echo "\r\n\t";		

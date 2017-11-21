@@ -236,8 +236,8 @@ class SetupController extends Controller
 						strip_tags(Request::post('crop_plant_spacing')),
 						strip_tags(Request::post('crop_target_population')),
 						strip_tags(Request::post('crop_zone_count')),
-						//$crop_zone_count,
-						strip_tags(Request::post('crop_zone_sample_count')),						
+						strip_tags(Request::post('crop_zone_sample_count')),
+						strip_tags(Request::post('crop_sample_plot_width')),						
 						strip_tags(Request::post('crop_variety_id')))
 						)
 		{

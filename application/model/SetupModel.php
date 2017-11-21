@@ -212,7 +212,7 @@ class SetupModel
 
 	public static function InsertIntoCropSession($farm_id, $paddock_id, $crop_plant_date, 
 			$crop_bed_width, $crop_bed_rows, $crop_plant_spacing, $crop_target_population, 
-			$crop_zone_count, $crop_zone_sample_count, $crop_variety_id)
+			$crop_zone_count, $crop_zone_sample_count, $crop_sample_plot_width, $crop_variety_id)
 	{	
 		/*
 		echo '<pre>';
@@ -233,6 +233,7 @@ class SetupModel
 		$crop[$farm_id]->crop_target_population = $crop_target_population;
 		$crop[$farm_id]->crop_zone_count = $crop_zone_count;
 		$crop[$farm_id]->crop_zone_sample_count = $crop_zone_sample_count;
+		$crop[$farm_id]->crop_sample_plot_width = $crop_sample_plot_width;		
 		$crop[$farm_id]->paddock_id = $paddock_id;
 		$crop[$farm_id]->crop_variety_id = $crop_variety_id;	
 
@@ -364,6 +365,7 @@ class SetupModel
 	 * @param int(10) $crop_target_population - optimum population for crop based on paddock area and defined spacing
      * @param tinyint(3) $crop_zone_count - how many management zones are defined for the crop
      * @param tinyint(3) $crop_zone_sample_count - number of measurement points within each zone
+	 * @param decimal(5,2) $crop_sample_plot_width - width of the plot sample along the bed/row
      * @param mediumint(9) $paddock_id - paddock identifier
      * @param mediumint(8) $farm_id - farm identifier
      * @param tinyint(3) $variety_id - variety identifier
@@ -377,12 +379,12 @@ class SetupModel
 		$sql = "INSERT INTO crop 
 				(crop_plant_date, crop_bed_width, crop_bed_rows, 
 				crop_plant_spacing, crop_target_population, 
-				crop_zone_count, crop_zone_sample_count, 
+				crop_zone_count, crop_zone_sample_count, crop_sample_plot_width,
 				paddock_id, farm_id, variety_id) 
 				VALUES 
 				(:crop_plant_date, :crop_bed_width, :crop_bed_rows, 
 				:crop_plant_spacing, :crop_target_population, 
-				:crop_zone_count, :crop_zone_sample_count, 
+				:crop_zone_count, :crop_zone_sample_count, :crop_sample_plot_width,
 				:paddock_id, :farm_id, :variety_id)";
 
 		// Retrieve the crop form post session variables
@@ -395,6 +397,7 @@ class SetupModel
 		$crop_target_population = self::GetCropValueFromSession('crop_target_population');
 		$crop_zone_count = self::GetCropValueFromSession('crop_zone_count');
 		$crop_zone_sample_count = self::GetCropValueFromSession('crop_zone_sample_count');
+		$crop_sample_plot_width = self::GetCropValueFromSession('crop_sample_plot_width');
 		$crop_variety_id = self::GetCropValueFromSession('crop_variety_id');
 	
 		try {				
@@ -407,6 +410,7 @@ class SetupModel
 				':crop_target_population' => $crop_target_population,
 				':crop_zone_count' => $crop_zone_count,
 				':crop_zone_sample_count' => $crop_zone_sample_count,
+				':crop_sample_plot_width' => $crop_sample_plot_width,
 				':paddock_id' => $paddock_id,
 				':farm_id' => $farm_id,				
 				':variety_id' => $crop_variety_id

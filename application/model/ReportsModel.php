@@ -2,7 +2,7 @@
 
 /**
  * ReportsModel
- * This is basically a simple CRUD (Create/Read/Update/Delete) demonstration.
+ * This is basically a simple CRUD (Create/Read/Update/Delete) class.
  */
 class ReportsModel
 {	
@@ -30,7 +30,7 @@ class ReportsModel
 				z.zone_name, z.zone_paddock_percentage, 
 				p.paddock_area, 
 				c.crop_plant_date, c.crop_bed_width, c.crop_bed_rows, 
-				c.crop_plant_spacing, c.crop_target_population 
+				c.crop_plant_spacing, c.crop_target_population, c.crop_sample_plot_width 
 			FROM 
 				sample s, zone z, paddock p, crop c
 			WHERE				
@@ -52,7 +52,8 @@ class ReportsModel
 		
 		//$zone_count = DatabaseCommon::getPaddockZoneCount($farm_id, $paddock_id);
 		$zone_count = DatabaseCommon::getCropZoneCount($crop_id);		
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');		
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = self::cropSamplePlotWidth($crop_id);		
         $zone_sample_counts = array();
 		$i = 1;
 		$report_weighted_sum = 0;
@@ -92,8 +93,9 @@ class ReportsModel
 			$crop_plant_date = $result->crop_plant_date;
 			$crop_bed_width = $result->crop_bed_width;
 			$crop_bed_rows = $result->crop_bed_rows;
-			$crop_plant_spacing = $result->crop_plant_spacing;			
-			$plants_per_sqm = self::unitPerSquareMeter($plot_population_average, $crop_bed_width, $plot_width);
+			$crop_plant_spacing = $result->crop_plant_spacing;
+			$crop_sample_plot_width = $result->crop_sample_plot_width;
+			$plants_per_sqm = self::unitPerSquareMeter($plot_population_average, $crop_bed_width, $crop_sample_plot_width);
 			
 			/*		
 		echo '<pre>';
@@ -105,7 +107,7 @@ class ReportsModel
 			
 			$zone_sample_counts[$result->zone_id]->sample_plant_average = $plants_per_sqm;			 
 			$zone_sample_counts[$result->zone_id]->ground_cover_average = $result->ground_cover_average;
-			$zone_sample_weight_kg_sqm = self::unitPerSquareMeter($result->sample_bulb_average, $crop_bed_width, $plot_width);			
+			$zone_sample_weight_kg_sqm = self::unitPerSquareMeter($result->sample_bulb_average, $crop_bed_width, $crop_sample_plot_width);			
 			$zone_sample_counts[$result->zone_id]->sample_average_weight = $zone_sample_weight_kg_sqm;
 			$zone_sample_counts[$result->zone_id]->zone_name = !empty($result->zone_name)? $result->zone_name: Statistics::getCharFromNumber($i);
             $zone_sample_counts[$result->zone_id]->zone_paddock_percentage = $result->zone_paddock_percentage;
@@ -130,7 +132,7 @@ class ReportsModel
 			
 			switch ($growth_stage_id){
 				case 1:					
-					$populationLimited = self::populationLimited($crop_plant_spacing, $crop_bed_rows, $crop_bed_width, $plot_population_average);
+					$populationLimited = self::populationLimited($crop_plant_spacing, $crop_bed_rows, $crop_bed_width, $crop_sample_plot_width, $plot_population_average);
 					$isLimited = ($populationLimited) ? 'y': 'n';
 					$zone_sample_counts[$result->zone_id]->zone_population_limited = $isLimited;
 					$zone_sample_counts[$result->zone_id]->zone_interpretation = 'Method To-Do';
@@ -153,7 +155,7 @@ class ReportsModel
 										
 					$zone_sample_counts[$result->zone_id]->zone_target_yield = number_format($zone_target_yield, 4, '.', '');
 					$populationLimited = self::populationLimited($crop_plant_spacing, $crop_bed_rows, 
-												$crop_bed_width, $plot_population_average);
+												$crop_bed_width, $crop_sample_plot_width, $plot_population_average);
 					$zone_sample_counts[$result->zone_id]->zone_population_limited_yield = ($populationLimited) ? 'y': 'n';
 					$growthLimited = self::isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_sqm);												
 					$zone_sample_counts[$result->zone_id]->zone_growth_limited_yield = ($growthLimited) ? 'y': 'n';
@@ -244,6 +246,21 @@ class ReportsModel
 		
 	}
 	
+	private function cropSamplePlotWidth($crop_id){
+		
+		$database = DatabaseFactory::getFactory()->getConnection();
+		
+		$sql = "SELECT crop_sample_plot_width
+				FROM crop
+				WHERE crop_id = :crop_id";
+				
+        $query = $database->prepare($sql);
+		
+        $query->execute(array(':crop_id' => $crop_id));
+		
+        return $query->fetch();
+	}
+	
 	private static function GroundCoverCMToLAI($gc_cm_plant_sqm){
 		
 		(float)$a = 0.183;		
@@ -276,7 +293,8 @@ class ReportsModel
 		
 		//(float)$GroundCover_f = $ground_cover/100; // percentage
 		// groundcover percentage as area/plant in cm^2 
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		$plot_width = self::cropSamplePlotWidth($crop_id);
 		//(float)$ground_cover_plant_area_cm = ((10000/($bed_width*$plot_width))*(float)($ground_cover_average/100))/$plot_population_average; 
 		(float)$ground_cover_plant_area_cm = (10000*((float)($ground_cover_average/100)))/$plot_population_average;
 		(float)$a = 0.183;
@@ -398,10 +416,11 @@ class ReportsModel
 	 * 
 	 * 
 	 */ 
-	public static function populationLimited($plant_spacing, $rows_per_bed, $bed_width, $plot_population_average){
+	public static function populationLimited($plant_spacing, $rows_per_bed, $bed_width, $plot_width, $plot_population_average){
 
 		
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = self::cropSamplePlotWidth($crop_id);
 		$plant_spacing_cm = $plant_spacing/10;
 		$average_emergence_percentage = 0.95;
 
@@ -868,7 +887,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		return $data;
 	}
 
-	public static function getMeanPopulationByZone($farm_id, $paddock_id, $crop_bed_width, $target_plants_sqm){
+	public static function getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $crop_bed_width, $target_plants_sqm){
 
 /*		
 		$sql = "SELECT paddock_bed_width,paddock_target_population,paddock_area FROM paddock
@@ -879,7 +898,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		$paddock_bed_width = (float)$rs->paddock_bed_width;
 		$target_paddock_plants_sqm = round($rs->paddock_target_population/($rs->paddock_area*10000));
 */		
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		$plot_width = self::cropSamplePlotWidth($crop_id);
 		
 		$database = DatabaseFactory::getFactory()->getConnection();
 			
@@ -1177,7 +1197,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 				
 				$paddock_area = (float)$rs->paddock_area;
 				
-				$sql = "SELECT crop_bed_width,crop_target_population FROM crop
+				$sql = "SELECT crop_bed_width,crop_target_population, FROM crop
 					WHERE crop_id =:crop_id";
 				
 				$rs = self::getCropPropertiesByID($sql, $crop_id);	
@@ -1188,7 +1208,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 				$title[0][1] = "Population";
 				$title[0][2] = "Target (".$target_plants_sqm."/sqm)";
 				// Todo 
-				$data = self::getMeanPopulationByZone($farm_id, $paddock_id, $rs->crop_bed_width, $target_plants_sqm);
+				$data = self::getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $rs->crop_bed_width, $target_plants_sqm);
 				break;			
 			case 2:
 			case 3:
@@ -1271,7 +1291,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		$rs = self::getCropPropertiesByID($sql, $crop_id);	
 		
 		$crop_bed_width = (float)$rs->crop_bed_width;
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');	
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');	
+		$plot_width = (float)$rs->crop_sample_plot_width;
 		
 		$sql = "SELECT 
 				zone.zone_id, zone.zone_name, sample.zone_sample_plot_id,sample.sample_count,

@@ -35,7 +35,8 @@ class ZoneSampleData extends Crop {
 							':paddock_id' => $this->paddock_id,
 							':farm_id' =>$this->farm_id));
 
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		$plot_width = $this->crop->crop_sample_plot_width;		
 		$crop_bed_width = $this->crop_bed_width;
 		$planting_date = $this->crop_plant_date;
 
@@ -53,7 +54,7 @@ class ZoneSampleData extends Crop {
 			$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_count_sqm = $samples_sqm;
 			if ( $this->growth_stage_id == 1 ) {
 				$populationLimited = ReportsModel::populationLimited($this->crop_plant_spacing, $this->crop_bed_rows, 
-								$this->crop_bed_width, $data->sample_count);
+								$this->crop_bed_width, $this->crop->crop_sample_plot_width, $data->sample_count);
 				$isLimited = ($populationLimited) ? 'true': 'false';				
 				$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_population_limited = $isLimited;
 			}	

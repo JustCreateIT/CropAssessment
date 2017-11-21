@@ -102,6 +102,7 @@ return array(
     "FEEDBACK_CROP_EDITING_SUCCESSFUL" => "Crop editing successful.",
     "FEEDBACK_CROP_DELETION_FAILED" => "Crop deletion failed.",
 	"FEEDBACK_CROP_DELETION_SUCCESSFUL" => "Crop deletion successful.",	
+	"FEEDBACK_CROP_EXISTS_FAILED" => "Crop not found?",
 	"FEEDBACK_ZONE_DATA_ENTRY_SUCCESSFUL" => "Zone data entry successful.",
 	"FEEDBACK_ZONE_DATA_UPDATE_SUCCESSFUL" => "Zone data updated successfully.",
 	"FEEDBACK_ZONE_DATA_ENTRY_FAILED" => "Zone data entry failed.",

@@ -647,7 +647,8 @@
 							':paddock_id' => $paddock_id,
 							':farm_id' =>$farm_id));
 
-		$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
+		$plot_width = $this->crop->crop_sample_plot_width;
 		$crop_bed_width = $this->crop->crop_bed_width;
 		$planting_date = $this->crop->crop_plant_date;
 
@@ -665,7 +666,7 @@
 			$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_count_sqm = $samples_sqm;
 			if ( $growth_stage_id == 1 ) {
 				$populationLimited = ReportsModel::populationLimited($this->crop->crop_plant_spacing, $this->crop->crop_bed_rows, 
-								$this->crop->crop_bed_width, $data->sample_count);
+								$this->crop->crop_bed_width, $this->crop->crop_sample_plot_width, $data->sample_count);
 				//$isLimited = ($populationLimited) ? 'y': 'n';				
 				$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_population_limited = ($populationLimited) ? 'y': 'n';
 			}	
@@ -676,7 +677,7 @@
 				$zone_mean_leaf_area_cm_plant_sqm = $this->GroundCoverCMToLAI($gc_cm_plant_sqm);
 				$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_lai_cm_plant_sqm = $zone_mean_leaf_area_cm_plant_sqm;				
 				$populationLimited = ReportsModel::populationLimited($this->crop->crop_plant_spacing, $this->crop->crop_bed_rows, 
-					$this->crop->crop_bed_width, $data->sample_count);
+					$this->crop->crop_bed_width, $this->crop->crop_sample_plot_width, $data->sample_count);
 				$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_population_limited = ($populationLimited) ? 'y': 'n';
 				$growthLimited = ReportsModel::isGrowthLimited( $growth_stage_id, $zone_mean_leaf_area_cm_plant_sqm );
 				$zone_data[$data->zone_name][$data->zone_sample_plot_id]->sample_growth_limited = ($growthLimited) ? 'y': 'n';

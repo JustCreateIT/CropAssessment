@@ -1,7 +1,4 @@
-
-			
-			
-			<div class="container">
+<div class="container">
     <h1>Define A New Crop</h1>
     <!--<div class="box">-->
 	<!--<div class="login-box" style="width: 100%; display: block;">-->
@@ -17,8 +14,7 @@
 				<div class="float_right">
 					<label for="paddock_id">Paddock</label>
 					<select name="paddock_id" id="paddock_id"></select>
-				</div>
-				
+				</div>				
 				<div class="float_left"><label>Variety</label>					
 					<select name="crop_variety_id">
 						<?php foreach ($this->crop_variety as $variety) { ?>
@@ -35,11 +31,11 @@
 				<div><label for="crop_target_population">Target Population</label><input type="number" min=0 name="crop_target_population" id="crop_target_population" value="" required /></div>
 				<div><label>Number of measurement zones</label><input type="number" step=1 min=1 name="crop_zone_count" value="" required /></div>
 				<div><label>Number of sample plots per zone</label><input type="number" step=1 min=0 name="crop_zone_sample_count" value="" required /></div>
+				<div><label>Sample plot width (along bed)</label><input type="number" step=0.1 min=0 name="crop_sample_plot_width" value="" placeholder="in metres" required /></div>
 				<input type="hidden" name="farm_details" id="farm_details" value='<?php echo $this->farm_details; ?>'>
 				<input type="hidden" name="paddock_area" id="paddock_area" value="">
 				<input type="hidden" name="page_function" id="page_function" value="create_crop">
-				<input type="hidden" name="hectare_target_population" id="hectare_target_population" value="" />
-                
+				<input type="hidden" name="hectare_target_population" id="hectare_target_population" value="" />                
 				<div class="submit_float_left"> 
 					<div class="app-button" style="margin:0; padding:0;">                
 						<a href="<?php echo Config::get('URL'); ?>setup">Back</a>
