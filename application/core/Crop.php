@@ -42,8 +42,8 @@ class Crop extends Paddock {
         $this->crop_bed_rows = $r->crop_bed_rows;
         $this->crop_plant_spacing = $r->crop_plant_spacing;		
         $this->crop_target_population = $r->crop_target_population;
-		$this->crop_area = self::getPaddockArea();
-		
+		$this->crop_sample_plot_width = $r->crop_sample_plot_width;
+		$this->crop_area = self::getPaddockArea();		
         $this->hectare_target_population = round($this->crop_target_population/$this->crop_area);		
         $this->variety_id = $r->variety_id;
 		$this->variety_name = ucwords((string)self::getVarietyNameByID($this->variety_id));

@@ -53,6 +53,7 @@ class DatabaseCommon
         return $query->fetch()->crop_bed_width;
 	}
 	
+	
 	public static function buildJSONcollection(){
 	
 		$database = DatabaseFactory::getFactory()->getConnection();
@@ -88,12 +89,10 @@ class DatabaseCommon
 		} 
 /*
 		echo '<pre>';
-				print_r($farms);
+				print_r($farms_array);
 		echo '</pre>';
-*/	
-		//return json_encode((array)$farms);
-		return json_encode((array)$farms_array);
-		
+*/			
+		return json_encode((array)$farms_array);		
 	}
 	
 	public static function getFarmDetails()

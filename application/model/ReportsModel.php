@@ -94,7 +94,7 @@ class ReportsModel
 			$crop_bed_width = $result->crop_bed_width;
 			$crop_bed_rows = $result->crop_bed_rows;
 			$crop_plant_spacing = $result->crop_plant_spacing;
-			$crop_sample_plot_width = $result->crop_sample_plot_width;
+			$crop_sample_plot_width = $result->crop_sample_plot_width;			
 			$plants_per_sqm = self::unitPerSquareMeter($plot_population_average, $crop_bed_width, $crop_sample_plot_width);
 			
 			/*		
@@ -246,7 +246,7 @@ class ReportsModel
 		
 	}
 	
-	private function cropSamplePlotWidth($crop_id){
+	private static function cropSamplePlotWidth($crop_id){
 		
 		$database = DatabaseFactory::getFactory()->getConnection();
 		
@@ -258,7 +258,7 @@ class ReportsModel
 		
         $query->execute(array(':crop_id' => $crop_id));
 		
-        return $query->fetch();
+        return $query->fetch()->crop_sample_plot_width;
 	}
 	
 	private static function GroundCoverCMToLAI($gc_cm_plant_sqm){
@@ -510,6 +510,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 	 * @return $per_sqm: type=float
 	 */
 	public static function unitPerSquareMeter($i, $x, $y){		
+		
 		if ($x != 0 && $y != 0){			
 			return $per_sqm = (1/($x*$y))*$i;		
 		}
@@ -1197,8 +1198,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 				
 				$paddock_area = (float)$rs->paddock_area;
 				
-				$sql = "SELECT crop_bed_width,crop_target_population, FROM crop
-					WHERE crop_id =:crop_id";
+				$sql = "SELECT crop_bed_width,crop_target_population FROM crop 
+				WHERE crop_id =:crop_id";
 				
 				$rs = self::getCropPropertiesByID($sql, $crop_id);	
 				
@@ -1284,9 +1285,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		$database = DatabaseFactory::getFactory()->getConnection();			
 		
 		// for consistency sample counts have been changed from plants/plot to plants/sqm
-		$sql = "SELECT * FROM crop
-			WHERE crop_id =:crop_id";
-			
+		$sql = "SELECT * FROM crop WHERE crop_id =:crop_id";			
 
 		$rs = self::getCropPropertiesByID($sql, $crop_id);	
 		
@@ -1457,7 +1456,13 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
     } 
 
 	private static function getCropPropertiesByID($sql, $crop_id){
-        
+		
+		/*
+		echo '<pre>';
+			print_r($sql);
+		echo '</pre>';
+        */
+		
         $database = DatabaseFactory::getFactory()->getConnection();
         $stmt = $database->prepare($sql);
         $stmt->execute(array(':crop_id' => $crop_id));
