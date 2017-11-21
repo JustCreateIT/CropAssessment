@@ -140,7 +140,8 @@ class ReportsModel
 				case 2: // three-leaf stage
 				case 3: // five-leaf stage
 				case 4:	// bulbing stage					
-					$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $crop_bed_width, $plot_population_average);
+					//$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $crop_bed_width, $crop_sample_plot_width, $plot_population_average);
+					$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $plot_population_average);					
 					$gc_cm_plant_sqm = (10000*($result->ground_cover_average/100))/$plants_per_sqm;
 					$leaf_area_sqcm_plant_sqm = self::GroundCoverCMToLAI($gc_cm_plant_sqm);
 					$zone_sample_counts[$result->zone_id]->lai_estimate_cm_plant_sqm = $leaf_area_sqcm_plant_sqm;					
@@ -275,7 +276,8 @@ class ReportsModel
 	 * return Leaf Area Index as cm^2 per plant
 	 * 
 	 */
-	public static function GroundCoverPercentToLAI($ground_cover_average, $bed_width, $plot_population_average){
+	//public static function GroundCoverPercentToLAI($ground_cover_average, $bed_width, $crop_sample_plot_width, $plot_population_average){
+	public static function GroundCoverPercentToLAI($ground_cover_average, $plot_population_average){		
 		
 		
 		
@@ -294,7 +296,7 @@ class ReportsModel
 		//(float)$GroundCover_f = $ground_cover/100; // percentage
 		// groundcover percentage as area/plant in cm^2 
 		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
-		$plot_width = self::cropSamplePlotWidth($crop_id);
+		//$plot_width = self::cropSamplePlotWidth($crop_id);
 		//(float)$ground_cover_plant_area_cm = ((10000/($bed_width*$plot_width))*(float)($ground_cover_average/100))/$plot_population_average; 
 		(float)$ground_cover_plant_area_cm = (10000*((float)($ground_cover_average/100)))/$plot_population_average;
 		(float)$a = 0.183;
