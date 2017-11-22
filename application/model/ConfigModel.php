@@ -255,56 +255,77 @@ class ConfigModel
         if ( !$farm_id ) {
             return false;
         }
+		$flag = false;
 		
+		// unlink any farm_users prior to deleting the crops/paddocks/farms
+		if (self::farmUsersExist($farm_id)){
+			// remove any farm_users associated with current farm ...
+			self::deleteFarmUsersByFarmID($farm_id);
+		} else {
+			$flag = true;
+			if (Config::get('DEBUG_LOG')) {	
+				Session::add('_debug_', 'flag set: no farmusers');
+			}
+		}
+				
 		// get array of paddock ids associated with current farm
 		$paddock_ids = self::getFarmPaddockIDs($farm_id);		
 
-		if(isset($paddock_ids)){
-			foreach($paddock_ids as $p){
+		if(isset($paddock_ids) && !empty($paddock_ids)){
+			foreach($paddock_ids as $paddock){
 				// get array of crop ids associated with current farm->paddock
-				$crop_ids = self::getFarmPaddockCropIDs($farm_id, $p->paddock_id);
-				if(isset($crop_ids)){
-					foreach($crop_ids as $c){
+				$crop_ids = self::getFarmPaddockCropIDs($farm_id, $paddock->paddock_id);
+				if(isset($crop_ids) && !empty($crop_ids)){
+					foreach($crop_ids as $crop){
 						// remove any associated crops first ...
-						if (self::deleteCropByID($c->crop_id)) {
+						if (self::deleteCropByID($crop->crop_id)) {
 							// remove any associated paddocks first ...
-							if (self::deletePaddockByID($p->paddock_id)) {
-								if (self::farmUsersExist($farm_id)){
-									if (Config::get('DEBUG_LOG')) {			
-										Session::add('_debug_', 'farmUsersExist(true): now delete');
-									}
-									// remove any farm_users associated with current farm ...
-									if (self::deleteFarmUsersByFarmID($farm_id)) {
-										$database = DatabaseFactory::getFactory()->getConnection();
-										$sql = "DELETE FROM farm WHERE farm_id = :farm_id";
-										$query = $database->prepare($sql);
-										try {
-											$query->execute(array(':farm_id' => $farm_id));
-											$rows = $query->rowCount();
-											if ($rows > 0) {
-												if (Config::get('DEBUG_LOG')) {			
-													Session::add('_debug_', 'deleteFarmByID(true): rowcount='.print_r($rows, true));
-												}
-												// don't care so long as no errors
-												Session::add('feedback_positive', Text::get('FEEDBACK_FARM_DELETION_SUCCESSFUL'));
-												return true;
-											}
-										} catch (PDOException $e) {
-											Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
-										} catch (Exception $e) {
-											Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
-										}	
-									}					
-								}
-							}
+							self::deletePaddockByID($paddock->paddock_id);
 						}
+					}
+				} else {
+					$flag = true;
+					if (Config::get('DEBUG_LOG')) {	
+						Session::add('_debug_', 'flag set: no crops');
 					}
 				}	
 			}			
+		} else {
+			$flag = true;
+			if (Config::get('DEBUG_LOG')) {	
+				Session::add('_debug_', 'flag set: no paddocks');
+			}
 		}
-
-		Session::add('feedback_negative', Text::get('FEEDBACK_FARM_DELETION_FAILED'));
-		return false;	
+		
+		if ($flag=true){
+			$database = DatabaseFactory::getFactory()->getConnection();
+			$sql = "DELETE FROM farm WHERE farm_id = :farm_id";
+			$query = $database->prepare($sql);
+			try {
+				$query->execute(array(':farm_id' => $farm_id));
+				$rows = $query->rowCount();
+				if ($rows > 0) {
+					if (Config::get('DEBUG_LOG')) {			
+						Session::add('_debug_', 'deleteFarmByID(true): rowcount='.print_r($rows, true));
+					}
+					// don't care so long as no errors
+					Session::add('feedback_positive', Text::get('FEEDBACK_FARM_DELETION_SUCCESSFUL'));
+					return true;
+				} else {
+					if (Config::get('DEBUG_LOG')) {			
+						Session::add('_debug_', 'deleteFarmByID(false): rowcount='.print_r($rows, true));
+						Session::add('_debug_', 'deleteFarmByID(false): SQL="DELETE FROM farm WHERE farm_id = '.print_r($farm_id, true).'";');
+					}
+				}
+			} catch (PDOException $e) {
+				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+			} catch (Exception $e) {
+				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+			}	
+		} else {			
+			Session::add('feedback_negative', Text::get('FEEDBACK_FARM_DELETION_FAILED'));
+			return false;			
+		}	
     }
 	
 	private static function farmUsersExist($farm_id){
