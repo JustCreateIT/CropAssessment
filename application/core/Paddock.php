@@ -39,7 +39,10 @@ class Paddock extends Farm {
         $this->paddock_latitude = $r->paddock_latitude;        
 		$this->paddock_google_place_id = $r->paddock_google_place_id;
 		$this->paddock_google_latlong_paths = $r->paddock_google_latlong_paths;
-		$this->paddock_google_area = $r->paddock_google_area;		
+		$this->paddock_google_area = $r->paddock_google_area;
+		if ( $r->paddock_google_area > 0 ) {
+			$this->paddock_area = $r->paddock_google_area;
+		}
         
     }
 	

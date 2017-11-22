@@ -77,7 +77,12 @@ class DatabaseCommon
 				$crop_rs = self::getCropsByPaddockID($paddock_record->paddock_id);
 				$paddock['paddock_id'] = $paddock_record->paddock_id;
 				$paddock['paddock_name'] = $paddock_record->paddock_name;
-				$paddock['paddock_area'] = $paddock_record->paddock_area;
+				// we should always have a google maps defined paddock area so use as default
+				if ($paddock_record->paddock_google_area > 0){
+					$paddock['paddock_area'] = $paddock_record->paddock_google_area;
+				} else {
+					$paddock['paddock_area'] = $paddock_record->paddock_area;
+				}
 				$paddock['crops'] = (array)$crop_rs;
 				$paddocks_array[$j] = $paddock;
 				$j++;
@@ -180,7 +185,7 @@ class DatabaseCommon
 	    $database = DatabaseFactory::getFactory()->getConnection();
 
         $sql = "SELECT 
-					paddock_id, paddock_name, paddock_area		
+					paddock_id, paddock_name, paddock_area, paddock_google_area		
 				FROM 
 					paddock 
 				WHERE
@@ -218,7 +223,8 @@ class DatabaseCommon
 	{
 	    $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT p.paddock_id, p.paddock_name, p.paddock_area		
+        //$sql = "SELECT p.paddock_id, p.paddock_name, p.paddock_area, p.paddock_google_area
+		$sql = "SELECT p.paddock_id, p.paddock_name, p.paddock_google_area as paddock_area		
 				FROM 
 				paddock p, farm_users fu
 				WHERE
@@ -650,6 +656,8 @@ class DatabaseCommon
         return $target_yield;		
 	}
 	
+	
+	/*
 	public static function getPaddockArea($farm_id, $paddock_id){
 		$database = DatabaseFactory::getFactory()->getConnection();
 
@@ -660,7 +668,7 @@ class DatabaseCommon
 
         return $query->fetch()->paddock_area;
 	}
-		
+	*/	
 	/*
 	public static function getTargetPaddockTonnesHectare($target_paddock_yield, $paddock_area){
 		
