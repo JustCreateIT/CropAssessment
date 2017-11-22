@@ -19,14 +19,16 @@ class DashboardController extends Controller
     /**
      * This method controls what happens when you move to /dashboard/index in your app.
      */
-    public function index()
-    {
-        $this->View->render('dashboard/index', array(
+    public function index() {
+        /*
+		$this->View->render('dashboard/index', array(
 			'account_type' => DatabaseCommon::getAccountTypeByUserID(Session::get('user_id')),
             'farm_info' => DatabaseCommon::getFarmDetails(),
 			'paddock_info' => DatabaseCommon::getPaddockDetails(),
             'sample_info' => DatabaseCommon::getSampleDetails()
-        ));		
+        ));
+*/		
+		$this->View->render('dashboard/index');
 	}
 	
 	public function selection_action()

@@ -85,7 +85,7 @@ class SetupController extends Controller
             'paddock_longitude' => SetupModel::GetPaddockValueFromSession('paddock_longitude'),
             'paddock_latitude' => SetupModel::GetPaddockValueFromSession('paddock_latitude'),
             'paddock_zone_count' => SetupModel::GetPaddockValueFromSession('paddock_zone_count'),	
-            'paddock_zone_sample_count' => SetupModel::GetPaddockValueFromSession('paddock_zone_sample_count'),	
+            'paddock_zone_sample_count' => SetupModel::GetPaddockValueFromSession('paddock_zone_sample_count'),
             'paddock_google_place_id' => SetupModel::GetPaddockValueFromSession('paddock_google_place_id')			
         ));		
     }
@@ -174,7 +174,7 @@ class SetupController extends Controller
 						strip_tags(Request::post('paddock_longitude')),
 						strip_tags(Request::post('paddock_latitude')),
 						strip_tags(Request::post('paddock_zone_count')),
-						strip_tags(Request::post('paddock_zone_sample_count')),
+						strip_tags(Request::post('paddock_zone_sample_count')),						
 						strip_tags(Request::post('paddock_google_place_id'))))
 		{
 			// no errors so move to next form input page
