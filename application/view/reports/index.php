@@ -44,15 +44,6 @@
 					<img src="<?php echo Config::get('URL'); ?>images/paddock_view.png"/>
 					<figcaption class="responsive caption" data-min="10" data-max="18">View Survey Map</figcaption>
 				</figure></button>						
-
-				<!--
-				<input type="submit" name="reports" value="View Emergence Assessment" id="emergence"/>
-				<input type="submit" name="reports" value="View Three Leaf Assessment" id="threeleaf"/>
-				<input type="submit" name="reports" value="View Five Leaf Assessment" id="fiveleaf"/>
-				<input type="submit" name="reports" value="View Bulbing Assessment" id="bulbing"/>
-				<input type="submit" name="reports" value="View Harvest Assessment" id="harvest"/>
-				<input type="submit" name="reports" value="View Paddock Survey" id="survey"/>
-				-->
 			<?php foreach ($this->report_info as $report_info) { ?>
 				<input type="hidden" name="<?= $report_info->paddock_name; ?>" id="<?= $report_info->paddock_id; ?>" value="<?= implode(',',$report_info->growth_stage_id); ?>">
 			<?php } ?>

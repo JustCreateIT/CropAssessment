@@ -5,7 +5,7 @@
         <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>		
 		<form method="post" action="<?php echo Config::get('URL');?>setup/selection_action">
-			<?php  if(isset($this->farm_info) && !empty($this->farm_info)){ ?>
+			<?php /*  if(isset($this->farm_info) && !empty($this->farm_info)){ ?>
 				<!-- Current farms available to this user -->
 				<div><label>Current Farms</label>
 					<select name="farm_id">
@@ -14,7 +14,7 @@
 						<?php } ?>	
 					</select>
 				</div>
-			<?php  } ?>
+			<?php  } */?>
 			<button type="submit" name="setup" value="farm"><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/farm_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Farm</figcaption>

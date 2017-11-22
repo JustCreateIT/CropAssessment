@@ -399,7 +399,7 @@ class SetupModel
 		$crop_zone_sample_count = self::GetCropValueFromSession('crop_zone_sample_count');
 		$crop_sample_plot_width = self::GetCropValueFromSession('crop_sample_plot_width');
 		$crop_variety_id = self::GetCropValueFromSession('crop_variety_id');
-	
+		
 		try {				
 			$query = $database->prepare($sql);
 			$query->execute(array(
@@ -448,7 +448,7 @@ class SetupModel
 		} else {
 			// Rollback transaction
 			self::DeleteFromCropByPaddockID($paddock_id);			
-			Session::add('feedback_negative', Text::get('FEEDBACK_CROP_CREATION_FAILED').' [PADDOCK ROLLBACK]');
+			Session::add('feedback_negative', Text::get('FEEDBACK_CROP_CREATION_FAILED').' [CROP ROLLBACK]');
 			//Session::add('feedback_negative', $query->rowCount());
 			return false;		
 		}			
@@ -585,7 +585,8 @@ class SetupModel
 				$crop_plant_spacing = $crop->crop_plant_spacing;
 				$crop_target_population = $crop->crop_target_population;
 				$crop_zone_count = $crop->crop_zone_count;
-				$crop_zone_sample_count = $crop->crop_zone_sample_count;				
+				$crop_zone_sample_count = $crop->crop_zone_sample_count;
+				$crop_sample_plot_width = $crop->crop_sample_plot_width;
 				$crop_paddock_id = $crop->paddock_id;
 				$crop_variety_id = $crop->crop_variety_id;
 			}
@@ -613,7 +614,10 @@ class SetupModel
 					break;
 				case 'crop_zone_sample_count':
 					return $crop_zone_sample_count;
-					break;					
+					break;
+				case 'crop_sample_plot_width':
+					return $crop_sample_plot_width;
+					break;						
 				case 'paddock_id':
 					return $crop_paddock_id;
 					break;					
