@@ -26,8 +26,8 @@ class ReportsController extends Controller
         //$this->View->render('reports/index');
 		$this->View->render('reports/index', array(
 			'farm_details' => DatabaseCommon::buildJSONcollection(),		
-            'farm_info' => DatabaseCommon::getFarmDetails(),
-			'paddock_info' => DatabaseCommon::getPaddockDetails(),
+            //'farm_info' => DatabaseCommon::getFarmDetails(),
+			//'paddock_info' => DatabaseCommon::getPaddockDetails(),
 			'report_info' => DatabaseCommon::getPaddockSamplesByGrowthStage()
         ));			
     }
@@ -135,6 +135,7 @@ class ReportsController extends Controller
 		$crop_id = Session::get('selected_crop_id');					
 
 		$this->View->render('reports/survey', array(
+			//'management_zone_map' => config::get("URL").'maps/'.$farm_id.'_'.$paddock_id.'_'.$crop_id.'.kmz',
 			'management_zone_map' => $farm_id.'_'.$paddock_id.'_'.$crop_id.'.kmz',
 			'paddock_google_latlong_paths' => json_decode(ConfigModel::getPaddockPolygonPathByID($paddock_id)),
 			'farm_name' => DatabaseCommon::getFarmNameByID($farm_id),

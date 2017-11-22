@@ -1,5 +1,6 @@
 var map;
 var paddock;
+var kmlLayer;
 
 function initMap() {
 	
@@ -37,36 +38,37 @@ function initMap() {
 	paddock = parseJSON(json, map);
 	var pCenter = polygonCenter(paddock);
 	
+	map.setCenter(pCenter);
+	paddock.setMap(map);
+	
 	//var managementURL = 'http://smartfarm.co.nz/maps/microfarm.kmz';
-		
+	
+
 	var baseURL = window.location.protocol + "//" + window.location.host + "/"
 	var kmzPath = 'maps/';
 	var kmzFile = $('#management_zone_map').val();
 	var managementURL = baseURL+kmzPath+kmzFile;
-	
-	//alert(managementURL);
-	paddock.setMap(map);
-	map.setCenter(pCenter);
-	
-	//managementURL = 'http://smartfarm.co.nz/maps/microfarm.kmz';
+
+	//var managementURL = $('#management_zone_map').val();
 	
 	urlExists(managementURL, function(exists){
 		//do more stuff based on the boolean value of exists
 		if (exists === true) {
 			paddock.setOptions({ strokeOpacity: 0.0, fillOpacity: 0.0 });
-			map.fitBounds(paddock.getBounds());
-			//paddock.setMap(null);
-			var kmlLayer = new google.maps.KmlLayer({
+			addManagementZones(map, managementURL);
+			/*			
+			kmlLayer = new google.maps.KmlLayer({
 				url: managementURL,
-				suppressInfoWindows: true,				
+				suppressInfoWindows: true,
 				map: map								
-			});		
+			});
+			*/				
 		}
 	});
-	//paddock.setMap(map);	
-	//map.setCenter(polygonCenter(paddock));
-			
+
 	
+	
+	map.fitBounds(paddock.getBounds());
 	geocoder = new google.maps.Geocoder();
 	
 	geocoder.geocode( { 'location': pCenter }, function(results, status) {
@@ -260,7 +262,9 @@ function parseJSON( json , map ) {
 		fillOpacity: 0.5 ,
 		strokeColor: '#0066FF',
 		strokeOpacity: 1,
-		strokeWeight: 3
+		strokeWeight: 3,
+		editable: true,
+		clickable: true
 	});
 
 	//You can then insert latLng objects:
@@ -298,24 +302,25 @@ function polygonCenter(poly) {
   }
   
 function calculateAreaFromPolygon() {
-	if(paddock.getPath() && paddock.getPath().getArray().length > 2) {			
-		var area = google.maps.geometry.spherical.computeArea(paddock.getPath());          
-		var hectares = Math.round(area/10000 * 100) / 100;		  
-//$('#area').val(Math.round(area/10000 * 100) / 100);
-		return hectares.toPrecision(3);
-	}
+
+		if(paddock.getPath() && paddock.getPath().getArray().length > 2) {			
+			var area = google.maps.geometry.spherical.computeArea(paddock.getPath());          
+			var hectares = Math.round(area/10000 * 100) / 100;		  
+	//$('#area').val(Math.round(area/10000 * 100) / 100);
+			return hectares.toPrecision(3);
+		}	
 }
 
-/*
-function addManagementZones(map){
 
-  var kmlLayer = new google.maps.KmlLayer({
-    url: 'http://smartfarm.co.nz/maps/microfarm.kmz',
+function addManagementZones(map, src){
+
+  kmlLayer = new google.maps.KmlLayer({
+    url: src,
     suppressInfoWindows: true,
     map: map
   });
-*/
-	/*
+/*
+	 
   kmlLayer.addListener('click', function(kmlEvent) {
     var text = kmlEvent.featureData.description;
     showInContentWindow(text);
@@ -325,6 +330,5 @@ function addManagementZones(map){
     var sidediv = document.getElementById('content-window');
     sidediv.innerHTML = text;
   }
-   
+*/  
 }
-*/
