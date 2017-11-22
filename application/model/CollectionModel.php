@@ -115,14 +115,82 @@ class CollectionModel
 		}
     }
 	
+	public static function updateMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number){
+		
+		$database = DatabaseFactory::getFactory()->getConnection();		
+			
+        $sql = "UPDATE leaf_number 
+				SET 
+					zone_id = :zone_id, 
+					growth_stage_id = :growth_stage_id, 
+					zone_mean_leaf_number = :zone_mean_leaf_number
+				WHERE
+					zone_id = :zone_id
+					AND growth_stage_id = :growth_stage_id";
+		
+        $query = $database->prepare($sql);
+
+		try{
+			$query->execute(array(				
+				':zone_id' => $zone_id,
+				':growth_stage_id' => $growth_stage_id,
+				':zone_mean_leaf_number' => $zone_mean_leaf_number
+				));
+
+		} catch (PDOException $e) {
+					Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+					Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}			
+
+        if ($query->rowCount() == 1) {
+			return true;
+        } else {
+			return false;		
+		}		
+	}
+	
+	public static function insertMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number){
+	$database = DatabaseFactory::getFactory()->getConnection();			
+
+        $sql = "INSERT INTO leaf_number 
+		(zone_id, growth_stage_id, mean_leaf_number) 
+		VALUES 
+		(:zone_id, :growth_stage_id, :mean_leaf_number)";
+		
+        $query = $database->prepare($sql);
+		
+		try{
+			$query->execute(array(
+				':zone_id' => $zone_id,
+				':growth_stage_id' => $growth_stage_id,
+				':mean_leaf_number' => $zone_mean_leaf_number
+				));
+
+		} catch (PDOException $e) {
+					Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+					Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		
+        if ($query->rowCount() == 1) {			
+			return true;
+        } else {
+			// default return
+			return false;		
+		}
+
+	
+	}
+	
 	public static function emailSampleImage(
 		$zone_sample_plot_id, $date_collected, $sample_count, $sample_comment = null, $sample_ela_score = null, 
-		$sample_bulb_weight = null,	$growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)
+		$sample_bulb_weight = null,	$zone_mean_leaf_number, $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)
 	{
 		
 		if (self::validateSampleImageFile($key) AND self::sendImageAsEmail(
 		$zone_sample_plot_id, $date_collected, $sample_count, $sample_comment, $sample_ela_score, 
-		$sample_bulb_weight, $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)) {			
+		$sample_bulb_weight, $zone_mean_leaf_number, $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)) {			
 			Session::add('feedback_positive', $_FILES['sample_file']['name'][$key].' '.Text::get('FEEDBACK_SAMPLE_PLOT_EMAIL_SEND_SUCCESSFUL'));
 			return true;
 		}
@@ -131,7 +199,7 @@ class CollectionModel
 	
 	private static function sendImageAsEmail(
 		$zone_sample_plot_id, $date_collected, $sample_count, $sample_comment = null, $sample_ela_score = null, 
-		$sample_bulb_weight = null,	$growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key) 
+		$sample_bulb_weight = null,	$zone_mean_leaf_number, $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key) 
 	{
 		
 		$farm_name = ucwords(DatabaseCommon::getFarmNameByID($farm_id));
@@ -145,6 +213,7 @@ class CollectionModel
 				"Paddock: ".$paddock_name.'<br>'.
 				"Growth Stage: ".$growth_stage_name.'<br>'.
 				"Zone ID: ".$zone_id.'<br>'.
+				"Zone Mean Leaf Number: ".$zone_mean_leaf_number.'<br>'.
 				"Zone Plot ID: ".$zone_sample_plot_id.'<br>'.
 				"Date Collected: ".$date_collected.'<br>'.
 				"Sample Count: ".$sample_count.'<br>';

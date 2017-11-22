@@ -87,6 +87,7 @@ class CollectionController extends Controller
 		$sample_comment = Request::post('sample_comment');
 		$sample_ela_score = Request::post('sample_ela_score');
 		$sample_bulb_weight = Request::post('sample_bulb_weight');
+		$zone_mean_leaf_number = Request::post('mean_leaf_number');
 		//$sample_file = Request::post('sample_file');
 		$growth_stage_id = Request::post('growth_stage_id');
 		$zone_id = Request::post('zone_id');
@@ -105,7 +106,7 @@ class CollectionController extends Controller
 		foreach ($zone_sample_plot_id as $key => $value) {
 			
 			$flag = true;
-			$error = false;
+			$no_error = false;
 			
 			switch ($growth_stage_id) {
 				case 1: // emergence so no image collected
@@ -120,7 +121,7 @@ class CollectionController extends Controller
 						// send collected images to defined email address
 						if (!CollectionModel::emailSampleImage(
 							$zone_sample_plot_id[$key], $sample_date, $sample_count[$key], $sample_comment[$key], $sample_ela_score[$key],
-							$sample_bulb_weight[$key], $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)) 
+							$sample_bulb_weight[$key], $zone_mean_leaf_number, $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id, $key)) 
 						{
 							$flag = false;				
 						}						
@@ -143,7 +144,7 @@ class CollectionController extends Controller
 							$zone_sample_plot_id[$key], $sample_date, $sample_count[$key], $sample_comment[$key], $sample_ela_score[$key], 
 							$sample_bulb_weight[$key], $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id))
 						{
-							$error = true;				
+							$no_error = true;				
 						}	
 					} else {			
 						// INSERT new sample record into the database
@@ -151,15 +152,29 @@ class CollectionController extends Controller
 							$zone_sample_plot_id[$key], $sample_date, $sample_count[$key], $sample_comment[$key], $sample_ela_score[$key],
 							$sample_bulb_weight[$key], $growth_stage_id, $zone_id, $crop_id, $paddock_id, $farm_id))
 						{
-							$error = true;				
+							$no_error = true;				
 						}					
-					}				
+					}
+					if (DatabaseCommon::zoneMeanLeafNumberExist($zone_id, $growth_stage_id)){
+						// UPDATE existing sample record into the database								
+						if (!CollectionModel::updateMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
+						{
+							$no_error = true;				
+						}	
+					} else {			
+						// INSERT new sample record into the database
+						if (!CollectionModel::insertMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
+						{
+							$no_error = true;				
+						}					
+					}
+					
 				}		
 			}
 		}
 
 		// Display success or failure messages from session
-		if($error == true){
+		if($no_error == true){
 			Session::add('feedback_positive', Text::get('FEEDBACK_ZONE_DATA_ENTRY_SUCCESSFUL'));
 		}
 		// Potentially many samples so back to collection page		

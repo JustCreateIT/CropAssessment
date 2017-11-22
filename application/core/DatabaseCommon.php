@@ -539,6 +539,24 @@ class DatabaseCommon
             return false;
         }
         return true;		
+	}
+
+	public static function zoneMeanLeafNumberExist($zone_id, $growth_stage_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		
+		$sql = "SELECT mean_leaf_number
+				FROM leaf_number
+				WHERE 
+				zone_id = :zone_id
+				AND growth_stage_id = :growth_stage_id";
+				
+		$query = $database->prepare($sql);
+        $query->execute(array(':zone_id' => $zone_id,':growth_stage_id' => $growth_stage_id));	
+
+		if ($query->rowCount() == 0) {
+            return false;
+        }
+        return true;		
 	}	
 	
 	/* Deprecated 2017/10/10 

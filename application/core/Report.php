@@ -787,13 +787,7 @@
 	}
 	
 	private function getHTMLThreeFiveBulbingAssessment(){
-		
-		/*
-		echo '<pre>';
-		echo var_dump("getHTMLThreeFiveBulbingAssessment");
-		echo '<pre>';	
-		*/
-		
+
 		$report = ReportsModel::buildAssessmentReport($this->crop->farm_id, $this->crop->paddock_id, $this->crop->crop_id, $this->growth_stage_id);
 		
 		$html = '<div>
