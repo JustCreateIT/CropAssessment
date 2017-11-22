@@ -1,5 +1,6 @@
 var map;
 var paddock;
+var drawingManager;
 var arr = [];
 var vertices;
 var shape = [];
@@ -36,7 +37,7 @@ function initMap() {
 	};
 	
 	// Drawing Manager control options
-	var paddock = new google.maps.drawing.DrawingManager({
+	var drawingManager = new google.maps.drawing.DrawingManager({
 		drawingMode: google.maps.drawing.OverlayType.POLYGON,
 		drawingControl: true,
 		drawingControlOptions: {
@@ -49,14 +50,13 @@ function initMap() {
 				fillColor: '#3399CC',
 				fillOpacity: 0.5 ,
 				strokeColor: '#0066FF',
-				strokeOpacity: 1
-				
+				strokeOpacity: 1			
 			}		  
 	});
 	
 	// Create Map and bind Drawing Manager
 	map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);		
-	paddock.setMap(map);
+	drawingManager.setMap(map);
 	
 	// delete menu to remove vertices      
 	DeleteMenu.prototype = new google.maps.OverlayView();
@@ -92,42 +92,55 @@ function initMap() {
 	});	
 	
 	// overlaycomplete listeners
-	google.maps.event.addListener(paddock, "overlaycomplete", function(event) {
+	google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
 		var newShape = event.overlay;
 		newShape.type = event.type;
 
 	});
 
-	google.maps.event.addListener(paddock, "overlaycomplete", function(event){
+	google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
 		overlayClickListener(event.overlay);
 		
-		shape = buildShape(event.overlay);	
-		$('#paddock_google_latlong_paths').val(JSON.stringify(shape));
-
+		shape = buildShape(event.overlay);		
+		setHiddenProperties(shape);
 		// stop drawing mode when polygon complete
-		paddock.setOptions({drawingMode: null});
+		drawingManager.setOptions({drawingMode: null});
+		/*
+		$('#paddock_google_latlong_paths').val(JSON.stringify(shape));
+		var json = JSON.parse($('#paddock_google_latlong_paths').val());	
+		paddock = parseJSON(json, map);
+		// set area
+		$('#paddock_google_area').val(calculateAreaFromPolygon);
+		*/
 	});	
 
 
 	// overlay events handler
 	function overlayClickListener(overlay) {
 		
-		google.maps.event.addListener(overlay, "mouseup", function(event){
-			
+		google.maps.event.addListener(overlay, "mouseup", function(event){			
 			shape = buildShape(overlay);
+			setHiddenProperties(shape);
+			/*
 			$('#paddock_google_latlong_paths').val(JSON.stringify(shape));
-
+			// set area
+			$('paddock_google_area').val(calculateAreaFromPolygon);
+			*/
 		});	
 
 		var deleteMenu = new DeleteMenu();
 		google.maps.event.addListener(overlay, 'rightclick', function(e) {				
 			// Check if click was on a vertex control point
 			if (e.vertex == undefined) {
-				// right click on paddock will remove it 
-				this.setMap(null);
-				paddock.setOptions({drawingMode: google.maps.drawing.OverlayType.POLYGON});
+				
 				// clear any path information 
-				$('#paddock_google_latlong_paths').val(null);				
+				$('#paddock_google_latlong_paths').val(null);
+				// clear area information
+				$('paddock_google_area').val(null);	
+				// right click on paddock will remove it 	
+				this.setMap(null);
+				drawingManager.setOptions({drawingMode: google.maps.drawing.OverlayType.POLYGON});
+		
 				return;
 			}			
 			deleteMenu.open(map, overlay.getPath(), e.vertex);
@@ -141,24 +154,42 @@ function initMap() {
 				//$('#paddock_google_latlong_paths').val(arr);
 				//alert("new point added "+$('#paddock_google_latlong_paths').val());
 				shape = buildShape(overlay);
-				$('#paddock_google_latlong_paths').val(JSON.stringify(shape));				
+				setHiddenProperties(shape);
+				/*
+				$('#paddock_google_latlong_paths').val(JSON.stringify(shape));
+				// set area
+				$('paddock_google_area').val(calculateAreaFromPolygon);
+				*/
 			});
 
 			google.maps.event.addListener(path, 'remove_at', function(){
 				// Point was removed
 				shape = buildShape(overlay);
+				setHiddenProperties(shape);
+				/*
 				$('#paddock_google_latlong_paths').val(JSON.stringify(shape));				
 				//alert("point removed "+$('#paddock_google_latlong_paths').val());
+				// set area
+				$('paddock_google_area').val(calculateAreaFromPolygon);
+				*/
 			});
 
 			google.maps.event.addListener(path, 'set_at', function(){
 				// Point was moved
 				shape = buildShape(overlay);
+				
+				setHiddenProperties(shape);
+				/*
 				$('#paddock_google_latlong_paths').val(JSON.stringify(shape));
 				//alert("point moved "+$('#paddock_google_latlong_paths').val());
+				// set area
+				$('paddock_google_area').val(calculateAreaFromPolygon);
+				*/
 			});
 		});
 	}
+	
+	
 	
 	/**
 	* A menu that lets a user delete a selected vertex of a path drawn on a google map.
@@ -244,13 +275,26 @@ function initMap() {
 	};
 }
 
+function setHiddenProperties(s){
+	
+	// set the polygon path information
+	$('#paddock_google_latlong_paths').val(JSON.stringify(s));
+	
+	var json = JSON.parse($('#paddock_google_latlong_paths').val());	
+	paddock = parseJSON(json, map);
+	// set the polygon area information
+	$('#paddock_google_area').val(calculateAreaFromPolygon);
+	
+	//alert($('#paddock_google_latlong_paths').val());
+	//alert($('#paddock_google_area').val());
+}
+
 function buildShape(o){
 	
 	shape.length = 0;
 	var tmp={type:google.maps.drawing.OverlayType['POLYGON'], id:null};
 	tmp.geometry=m_(o.getPaths(),false);
-	shape.push(tmp);
-	
+	shape.push(tmp);	
 	return shape;
 }		
 
@@ -279,4 +323,52 @@ function m_(paths,e){
 
 function p_(latLng){
 	return([latLng.lat(),latLng.lng()]);
+}
+
+function pp_(lat,lng){
+	return new google.maps.LatLng(lat,lng);
+}
+
+function parseJSON( json , map ) {
+    polygon = new google.maps.MVCArray();
+
+    //Setup all the paths inside polygons
+    json.forEach( function(rec) {
+        rec.geometry.forEach( function( key ) {
+			key.forEach( function ( value ) {
+				polygon.push( pp_( value[0], value[1] ) );				
+			})	
+        });
+    });	
+	
+	pathCoords = new google.maps.MVCArray();
+	//Then set up your map:
+	paddock = new google.maps.Polygon({
+		path: pathCoords,		
+		fillColor: '#3399CC',
+		fillOpacity: 0.5 ,
+		strokeColor: '#0066FF',
+		strokeOpacity: 1,
+		strokeWeight: 3,
+		editable: true,
+		clickable: true	  
+	});
+
+	//You can then insert latLng objects:
+	for (var i =0; i < polygon.getLength(); i++) {		
+		var xy = polygon.getAt(i);
+		paddock.getPath().insertAt( i, xy );		
+	}
+	
+	return paddock;	
+}
+
+function calculateAreaFromPolygon() {
+
+		if(paddock.getPath() && paddock.getPath().getArray().length > 2) {			
+			var area = google.maps.geometry.spherical.computeArea(paddock.getPath());          
+			var hectares = Math.round(area/10000 * 100) / 100;		  
+			//$('#area').val(Math.round(area/10000 * 100) / 100);
+			return hectares.toPrecision(3);
+		}	
 }
