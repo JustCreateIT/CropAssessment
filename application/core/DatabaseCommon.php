@@ -62,7 +62,7 @@ class DatabaseCommon
 		$farms_array = array();
 		$paddocks_array = array();
 		$i = 0;
-		foreach ($farms_rs as $farm_record){
+		foreach ($farms_rs as $farm_record){			
 			
 			$paddocks_rs = self::getPaddockByFarmID($farm_record->farm_id);
 			//$farms['farms'][$farm_record->farm_id]['farm_id'] = $farm_record->farm_id;
@@ -73,7 +73,8 @@ class DatabaseCommon
 			$farm['farm_name'] = $farm_record->farm_name;
 			//$farm['paddocks'] = (array)$paddocks_rs;
 			$j = 0;
-			foreach ($paddocks_rs as $paddock_record){
+			foreach ($paddocks_rs as $paddock_record){	
+				
 				$crop_rs = self::getCropsByPaddockID($paddock_record->paddock_id);
 				$paddock['paddock_id'] = $paddock_record->paddock_id;
 				$paddock['paddock_name'] = $paddock_record->paddock_name;
@@ -83,15 +84,21 @@ class DatabaseCommon
 				} else {
 					$paddock['paddock_area'] = $paddock_record->paddock_area;
 				}
-				$paddock['crops'] = (array)$crop_rs;
-				$paddocks_array[$j] = $paddock;
-				$j++;
+				
+				if (count($crop_rs) > 0 ){
+					$paddock['crops'] = (array)$crop_rs;
+					$paddocks_array[$j] = $paddock;				
+				}
+				$j++;		
 			}			
+			
 			$farm['paddocks'] = (array)$paddocks_array;
+			$paddocks_array = null;
 			$farm_array['farm'] = $farm;
 			$farms_array[$i] = $farm_array;
 			$i++;
 		} 
+
 /*
 		echo '<pre>';
 				print_r($farms_array);
