@@ -115,7 +115,7 @@ class CollectionModel
 		}
     }
 	
-	public static function updateMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number){
+	public static function updateMeanLeafNumber($zone_id, $growth_stage_id, $mean_leaf_number){
 		
 		$database = DatabaseFactory::getFactory()->getConnection();		
 			
@@ -123,7 +123,7 @@ class CollectionModel
 				SET 
 					zone_id = :zone_id, 
 					growth_stage_id = :growth_stage_id, 
-					zone_mean_leaf_number = :zone_mean_leaf_number
+					mean_leaf_number = :mean_leaf_number
 				WHERE
 					zone_id = :zone_id
 					AND growth_stage_id = :growth_stage_id";
@@ -134,7 +134,7 @@ class CollectionModel
 			$query->execute(array(				
 				':zone_id' => $zone_id,
 				':growth_stage_id' => $growth_stage_id,
-				':zone_mean_leaf_number' => $zone_mean_leaf_number
+				':mean_leaf_number' => $mean_leaf_number
 				));
 
 		} catch (PDOException $e) {
