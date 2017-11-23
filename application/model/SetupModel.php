@@ -344,7 +344,7 @@ class SetupModel
 			Session::set('paddock_form_input', null);
 			Session::set('paddock_map_form_input', null);
 			
-			Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_CREATION_SUCCESS'));
+			Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_CREATION_SUCCESSFUL'));
 			return true;		
 		} else {
 			// Rollback transaction
