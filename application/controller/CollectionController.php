@@ -155,20 +155,21 @@ class CollectionController extends Controller
 							$no_error = true;				
 						}					
 					}
-					if (DatabaseCommon::zoneMeanLeafNumberExist($zone_id, $growth_stage_id)){
-						// UPDATE existing sample record into the database								
-						if (!CollectionModel::updateMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
-						{
-							$no_error = true;				
-						}	
-					} else {			
-						// INSERT new sample record into the database
-						if (!CollectionModel::insertMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
-						{
-							$no_error = true;				
-						}					
+					if ($growth_stage_id != 1) { // no leaf counts for emergence data					
+						if (DatabaseCommon::zoneMeanLeafNumberExist($zone_id, $growth_stage_id)){
+							// UPDATE existing sample record into the database								
+							if (!CollectionModel::updateMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
+							{
+								$no_error = true;				
+							}	
+						} else {			
+							// INSERT new sample record into the database
+							if (!CollectionModel::insertMeanLeafNumber($zone_id, $growth_stage_id, $zone_mean_leaf_number))
+							{
+								$no_error = true;				
+							}					
+						}
 					}
-					
 				}		
 			}
 		}
