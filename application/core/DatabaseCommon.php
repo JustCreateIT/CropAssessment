@@ -69,9 +69,7 @@ class DatabaseCommon
 			//$farms['farms'][$farm_record->farm_id]['farm_name'] = $farm_record->farm_name;
 			//$farms['farms'][$farm_record->farm_id]['paddocks'] = (array)$paddock_rs;
 
-			$farm['farm_id'] = $farm_record->farm_id;
-			$farm['farm_name'] = $farm_record->farm_name;
-			//$farm['paddocks'] = (array)$paddocks_rs;
+				//$farm['paddocks'] = (array)$paddocks_rs;
 			$j = 0;
 			foreach ($paddocks_rs as $paddock_record){	
 				
@@ -91,19 +89,22 @@ class DatabaseCommon
 				}
 				$j++;		
 			}			
-			
-			$farm['paddocks'] = (array)$paddocks_array;
-			$paddocks_array = null;
-			$farm_array['farm'] = $farm;
-			$farms_array[$i] = $farm_array;
-			$i++;
+			if(count($paddocks_array) >0 ){
+				$farm['farm_id'] = $farm_record->farm_id;
+				$farm['farm_name'] = $farm_record->farm_name;
+				$farm['paddocks'] = (array)$paddocks_array;
+				$paddocks_array = null;
+				$farm_array['farm'] = $farm;
+				$farms_array[$i] = $farm_array;
+				$i++;				
+			}
 		} 
 
 /*
 		echo '<pre>';
 				print_r($farms_array);
 		echo '</pre>';
-*/			
+	*/		
 		return json_encode((array)$farms_array);		
 	}
 	
@@ -628,6 +629,50 @@ class DatabaseCommon
 		*/
 		return $data;		
 	}
+	
+	
+		public static function getCropSamplesByGrowthStage(){
+
+	    $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT p.paddock_name, p.paddock_id, c.crop_id
+				FROM paddock p, crop c
+				WHERE p.paddock_id = c.paddock_id";	
+		
+        $query = $database->prepare($sql);
+        $query->execute();	
+
+		$data = array();
+		// fetchAll() is the PDO method that gets all result rows
+		foreach ($query->fetchAll() as $crops) {
+			$sql = "SELECT growth_stage_id FROM sample 
+				WHERE paddock_id = :paddock_id 
+				AND crop_id = :crop_id
+				GROUP BY growth_stage_id";		
+			$query = $database->prepare($sql);
+			$query->execute(array(':paddock_id' => $crops->paddock_id, ':crop_id' => $crops->crop_id));
+
+			$growth_stages = array();
+			foreach ($query->fetchAll() as $stages) {
+				$growth_stages[] = $stages->growth_stage_id;			
+			}
+			if ( count($growth_stages) > 0 ) {
+				$data[$crops->crop_id] = new stdClass();
+				$data[$crops->crop_id]->paddock_name = $crops->paddock_name;			
+				$data[$crops->crop_id]->paddock_id = $crops->paddock_id;
+				$data[$crops->crop_id]->crop_id = $crops->crop_id;
+				$data[$crops->crop_id]->growth_stage_id = $growth_stages;			
+			}
+		}			
+		
+		/*
+		echo '<pre>';
+				print_r($data);
+		echo '</pre>';
+		*/
+		return $data;		
+	}
+	
 	
 	/* deprecated 2017/10/11
 	public static function getTargetPaddockPopulation($farm_id, $paddock_id){

@@ -45,7 +45,7 @@
 					<figcaption class="responsive caption" data-min="10" data-max="18">View Survey Map</figcaption>
 				</figure></button>						
 			<?php foreach ($this->report_info as $report_info) { ?>
-				<input type="hidden" name="<?= $report_info->paddock_name; ?>" id="<?= $report_info->paddock_id; ?>" value="<?= implode(',',$report_info->growth_stage_id); ?>">
+				<input type="hidden" name="<?= $report_info->paddock_name; ?>" id="<?= $report_info->crop_id; ?>" value="<?= implode(',',$report_info->growth_stage_id); ?>">
 			<?php } ?>
 			</form>
 			<input type="hidden" name="farm_details" id="farm_details" value='<?php echo $this->farm_details; ?>'>

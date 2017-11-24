@@ -15,6 +15,13 @@ $(document).ready(function(){
 		disableViewState();
 		updateViewState();
 	}); 
+	
+		/* If crop selection option changes need to update state */
+	$( "[name=crop_id]" ).change( function() {		
+		disableViewState();
+		updateViewState();
+	}); 
+	
 });
 
 function disableViewState(){
@@ -29,13 +36,16 @@ function updateViewState(){
 	
 	var paddock_name = $( "[name=paddock_id]" ).find(":selected").text();
 	var paddock_id = $( "[name=paddock_id]" ).find(":selected").val();
+	var crop_id = $( "[name=crop_id]" ).find(":selected").val();	
 	
 	// always show survey map
 	$( "#survey" ).prop("disabled", false);
 	
-	if ( $('#'+paddock_id).val() != null ) {
+	//if ( $('#'+paddock_id).val() != null ) {
+	if ( $('#'+crop_id).val() != null ) {		
 		
-		var selected = $('#'+paddock_id).val();
+		//var selected = $('#'+paddock_id).val();
+		var selected = $('#'+crop_id).val();		
 		var arr = selected.split(',');
 	
 		jQuery.each(arr, function(index, item) {

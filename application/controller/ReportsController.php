@@ -28,7 +28,8 @@ class ReportsController extends Controller
 			'farm_details' => DatabaseCommon::buildJSONcollection(),		
             //'farm_info' => DatabaseCommon::getFarmDetails(),
 			//'paddock_info' => DatabaseCommon::getPaddockDetails(),
-			'report_info' => DatabaseCommon::getPaddockSamplesByGrowthStage()
+			//'report_info' => DatabaseCommon::getPaddockSamplesByGrowthStage()
+			'report_info' => DatabaseCommon::getCropSamplesByGrowthStage()
         ));			
     }
 	
