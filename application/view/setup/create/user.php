@@ -34,7 +34,7 @@
 				</div>
 			</div>
 			<div class="submit_float_left">
-				<input class="disabled" type="submit" id="btnSubmit" value="Send User Request" <?php if((Session::get("user_account_type") == 1)){ echo 'disabled style="color: #ccc; background-color: transparent; border: 2px solid #ccc;"'; } ?>/>
+				<input class="disabled" type="submit" id="btnSubmit" value="Send User Request" <?php if((Session::get("user_account_type") == 1 || Session::get("user_account_type") == 5)){ echo 'disabled style="color: #ccc; background-color: transparent; border: 2px solid #ccc;"'; } ?>/>
 			</div>
 			<div style="clear:both;"></div>
 		</form>

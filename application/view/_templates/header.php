@@ -3,10 +3,14 @@
 <head>
     <title>Onions NZ: Management Action Zones Dashboard</title>
     <!-- META -->
+	<!--<meta name="viewport" content="width=980">
+	<meta name="viewport" content="width=device-width"><!--<meta name="viewport" content="width=980">-->
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1.0, min-width=500"/>-->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	 <meta charset="utf-8">
+	<!--<script type="text/javascript" src="viewport-min-width.js"></script>-->		
+    <meta charset="utf-8">
     <!-- send empty favicon fallback to prevent user's browser hitting the server for lots of favicon requests resulting in 404s -->
-    <link rel="icon" href="data:;base64,=">
+    <!--<link rel="icon" href="data:;base64,=">-->
     <link rel="icon" href="<?php echo Config::get('URL'); ?>images/favicon.ico">
     <!-- CSS -->
 	<link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css">
@@ -37,6 +41,9 @@
 	} else {
 	
 		switch ($page){
+			case 'add': // add a new user to the system via the admim panel
+				echo '<script src="'.Config::get('URL').'scripts/random.js"></script>';
+				break;
 			case 'farm':
 				echo '<script src="'.Config::get('URL').'scripts/farms.js"></script>';
 				break;
@@ -54,7 +61,7 @@
 			case 'viewpaddock':
 			case 'survey':
 				echo '<script src="'.Config::get('URL').'scripts/viewPaddock.js"></script>';
-				break;		
+				break;			
 			case 'draw':	
 				echo '<script src="'.Config::get('URL').'scripts/drawPaddock.js"></script>';
 				echo "\r\n\t";		
@@ -118,33 +125,40 @@
         <div class="logo"></div>
         <!-- navigation -->
         <ul class="navigation">
+
             <!--<li <?php if (View::checkForActiveController($filename, "index")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo Config::get('URL'); ?>index">Home</a>
             </li>-->
             <?php if (Session::userIsLoggedIn()) { ?>
-                <li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+                <li<?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>dashboard">Dashboard</a>
 					<ul class="navigation-submenu">
-						<li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+						<li<?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
 							<a href="<?php echo Config::get('URL'); ?>setup">Setup & Configuration</a>
 						</li>
-						<li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+						<?php if (count(Session::get('user_crops')) != 0) { ?>
+						<li<?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?>>
 							<a href="<?php echo Config::get('URL'); ?>collection">Enter Sample Data</a>
 						</li>
-						<li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+						<?php } ?>
+						<?php if (Session::get('user_reports') !== false) { ?>
+						<li<?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
 							<a href="<?php echo Config::get('URL'); ?>reports">View Reports</a>
 						</li>
-						<li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+						<?php } ?>
+						<?php if (count(Session::get('user_farms')) != 0) { ?>
+						<li<?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
 							<a href="<?php echo Config::get('URL'); ?>config">Update Existing Settings</a>
 						</li>
+						<?php } ?>
 					</ul>
                 </li>
             <?php } else { ?>
                 <!-- for not logged in users -->
-                <li <?php if (View::checkForActiveControllerAndAction($filename, "login/index")) { echo ' class="active" '; } ?> >
+                <li<?php if (View::checkForActiveControllerAndAction($filename, "login/index")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>login">Login</a>
                 </li>
-                <li <?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
+                <li<?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>register">Register</a>
                 </li>
             <?php } ?>
@@ -153,25 +167,43 @@
         <!-- my account -->
         <ul class="navigation right">
         <?php if (Session::userIsLoggedIn()) : ?>
-            <li <?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
+            <li<?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo Config::get('URL'); ?>user/index">My Account</a>
                 <ul class="navigation-submenu">
-					<li <?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
+					<li<?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
                         <a href="<?php echo Config::get('URL'); ?>user/editUser">Update User Info</a>
                     </li>
-					<li <?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
+					<li<?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
                         <a href="<?php echo Config::get('URL'); ?>user/changePassword">Update Password</a>
                     </li>
-                    <li <?php if (View::checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+					<?php 
+					
+					// UAT(administator)=88, UAT(owner)=9, UAT(standard)=5, UAT(public)=1
+					if (Session::get("user_account_type") == 9 || Session::get("user_account_type") == 88) : ?>
+						<!-- Farm owner section -->
+						<?php if (count(Session::get('user_farms')) != 0) { /* ?>
+						<li<?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?> >
+							<a href="<?php echo Config::get('URL'); ?>user/add">Add Farm User</a>
+						</li>
+						<?php */ } ?>
+					
+					<?php endif; ?>
+                    <li<?php if (View::checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
                         <a href="<?php echo Config::get('URL'); ?>login/logout">Logout</a>
                     </li>
+					
                 </ul>
             </li>
             <?php // UAT(administator)=88, UAT(owner)=9, UAT(standard)=5, UAT(public)=1
 			if (Session::get("user_account_type") == 88) : ?>
 				<!-- Administration section -->
-				<li <?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
+				<li<?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
 					<a href="<?php echo Config::get('URL'); ?>admin/index">Admin</a>
+					<ul class="navigation-submenu">
+						<li<?php if (View::checkForActiveController($filename, "admin")) { echo ' class="active" '; } ?> >
+							<a href="<?php echo Config::get('URL'); ?>admin/add">Add New User</a>
+						</li>
+					</ul>
 				</li>
             <?php endif; ?>
         <?php endif; ?>

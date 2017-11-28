@@ -30,6 +30,7 @@ return array(
     "FEEDBACK_USERNAME_SAME_AS_OLD_ONE" => "Sorry, that username is the same as your current one. Please choose another one.",
     "FEEDBACK_USERNAME_ALREADY_TAKEN" => "Sorry, that username is already taken. Please choose another one.",
     "FEEDBACK_USER_EMAIL_ALREADY_TAKEN" => "Sorry, that email is already in use. Please choose another one.",
+	"FEEDBACK_USER_EMAIL_ALREADY_EXISTS" => "The email specified already exists.",
 	"FEEDBACK_FARMUSER_ALREADY_LINKED" => "The user is already linked to your farm?",	
     "FEEDBACK_USERNAME_CHANGE_SUCCESSFUL" => "Your username has been changed successfully.",
     "FEEDBACK_USERNAME_AND_PASSWORD_FIELD_EMPTY" => "Username and password fields were empty.",

@@ -54,7 +54,7 @@ class DatabaseCommon
 	}
 	
 	
-	public static function buildJSONcollection(){
+	public static function buildJSONcollection($setup = null){
 	
 		$database = DatabaseFactory::getFactory()->getConnection();
 		
@@ -71,6 +71,12 @@ class DatabaseCommon
 
 				//$farm['paddocks'] = (array)$paddocks_rs;
 			$j = 0;
+		/*	
+		echo '<pre>';
+			print_r($paddocks_rs);
+			
+		echo '</pre>';
+		*/	
 			foreach ($paddocks_rs as $paddock_record){	
 				
 				$crop_rs = self::getCropsByPaddockID($paddock_record->paddock_id);
@@ -83,13 +89,13 @@ class DatabaseCommon
 					$paddock['paddock_area'] = $paddock_record->paddock_area;
 				}
 				
-				if (count($crop_rs) > 0 ){
+				if (count($crop_rs) > 0  || $setup == true ){
 					$paddock['crops'] = (array)$crop_rs;
 					$paddocks_array[$j] = $paddock;				
 				}
 				$j++;		
 			}			
-			if(count($paddocks_array) >0 ){
+			if(count($paddocks_array) >0 || $setup == true ){
 				$farm['farm_id'] = $farm_record->farm_id;
 				$farm['farm_name'] = $farm_record->farm_name;
 				$farm['paddocks'] = (array)$paddocks_array;
@@ -101,10 +107,10 @@ class DatabaseCommon
 		} 
 
 /*
-		echo '<pre>';
-				print_r($farms_array);
+		echo '<pre>';			
+			print_r($farms_array);
 		echo '</pre>';
-	*/		
+*/			
 		return json_encode((array)$farms_array);		
 	}
 	
@@ -237,6 +243,24 @@ class DatabaseCommon
 				paddock p, farm_users fu
 				WHERE
 				p.farm_id = fu.farm_id
+				AND fu.user_id = :user_id";	
+		
+        $query = $database->prepare($sql);
+        $query->execute(array(':user_id' => Session::get('user_id')));
+		
+
+        // fetchAll() is the PDO method that gets all result rows
+        return $query->fetchAll();			
+	}
+	
+	public static function getCropDetails()
+	{
+	    $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT * FROM 
+				crop c, farm_users fu
+				WHERE
+				c.farm_id = fu.farm_id
 				AND fu.user_id = :user_id";	
 		
         $query = $database->prepare($sql);

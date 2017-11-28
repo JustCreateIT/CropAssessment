@@ -8,27 +8,8 @@
  */
 class ConfigModel
 {
-/**
-     * Get all paddocks related to a particular farm
-     * @return array an array with several objects (the results)
-     */
-	 /*
-    public static function getPaddocksByFarmID($farm_id)
-    {
-        $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT paddock_id, paddock_name, paddock_address, paddock_area, paddock_zone_count, paddock_zone_sample_count,
-				paddock_google_area, paddock_plant_date, paddock_bed_width, paddock_bed_rows, paddock_plant_spacing,
-				paddock_target_population, variety_id
-		FROM paddock WHERE farm_id = :farm_id";
-        $query = $database->prepare($sql);
-        $query->execute(array(':farm_id' => $farm_id));		
-
-        // fetchAll() is the PDO method that gets all result rows
-        return $query->fetchAll();
-    }
-	*/
-/**
+	/**
      * Get all paddocks related to a particular farm
      * @return array an array with several objects (the results)
      */
@@ -45,13 +26,13 @@ class ConfigModel
         return $query->fetchAll();
     }	
 	
-    public static function getCropsByCropID($crop_id)
+    public static function getCropsByPaddockID($paddock_id)
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT * FROM crop WHERE crop_id = :crop_id";
+        $sql = "SELECT crop_id FROM crop WHERE paddock_id = :paddock_id";
         $query = $database->prepare($sql);
-        $query->execute(array(':crop_id' => $crop_id));		
+        $query->execute(array(':paddock_id' => $paddock_id));		
 
         // fetchAll() is the PDO method that gets all result rows
         return $query->fetchAll();
@@ -170,8 +151,8 @@ class ConfigModel
     }
 	
     /**
-     * Update an existing Farm
-     * @param int $farm_id id of the specific farm
+     * Update an existing Paddock
+     * @param int $paddock_id id of the specific paddock
      * @param string $farm_name, $farm_contact_firstname, $farm_contact_lastname 
 	 * $farm_email_address, $farm_phone_number new details of the specific note
      * @return bool feedback (was the update successful ?)
@@ -203,8 +184,8 @@ class ConfigModel
     }
 
     /**
-     * Update an existing Farm
-     * @param int $farm_id id of the specific farm
+     * Update an existing Crop
+     * @param int $crop_id id of the specific crop
      * @param string $farm_name, $farm_contact_firstname, $farm_contact_lastname 
 	 * $farm_email_address, $farm_phone_number new details of the specific note
      * @return bool feedback (was the update successful ?)
@@ -245,11 +226,8 @@ class ConfigModel
     }	
 	
 	
-	/**
-     * Delete a specific farm
-     * @param int $farm_id id of the farm
-     * @return bool feedback (was the item deleted properly ?)
-     */
+
+/*
     public static function deleteFarmByID($farm_id)
     {
         if ( !$farm_id ) {
@@ -308,8 +286,10 @@ class ConfigModel
 					if (Config::get('DEBUG_LOG')) {			
 						Session::add('_debug_', 'deleteFarmByID(true): rowcount='.print_r($rows, true));
 					}
-					// don't care so long as no errors
+					// reset the user_farms session variable
+					Session::set('user_farms', DatabaseCommon::getFarmDetails());
 					Session::add('feedback_positive', Text::get('FEEDBACK_FARM_DELETION_SUCCESSFUL'));
+					// don't care so long as no errors
 					return true;
 				} else {
 					if (Config::get('DEBUG_LOG')) {			
@@ -327,7 +307,7 @@ class ConfigModel
 			return false;			
 		}	
     }
-	
+/*	
 	private static function farmUsersExist($farm_id){
 		$database = DatabaseFactory::getFactory()->getConnection();
 		$sql = "SELECT * FROM farm_users WHERE farm_id = :farm_id";
@@ -351,7 +331,7 @@ class ConfigModel
 		// no farm_user records for the associated farm_id
 		return false;
 	}
-
+/*
 	private static function deleteFarmUsersByFarmID($farm_id)	{
 		$database = DatabaseFactory::getFactory()->getConnection();
 		$sql = "DELETE FROM farm_users WHERE farm_id = :farm_id";
@@ -375,18 +355,25 @@ class ConfigModel
 		return false;
 	}
 
-    /**
-     * Delete a specific paddock
-     * @param int $paddock_id id of the paddock
-     * @return bool feedback (was the item deleted properly ?)
-     */
+
+
+ /*
     public static function deletePaddockByID($paddock_id)
     {
         if ( !$paddock_id ) {
             return false;
         }
-		// remove any associated zones first ...
-		if (self::deletePaddockZones($paddock_id)) {
+		// all associated crops
+		$crops = DatabaseCommon::getCropsByPaddockID($paddock_id);
+		$flag = true;
+		foreach ( $crops as $crop ) {
+			$flag = false;
+			// remove any associated crops first ...
+			if ( self::deleteCropByID($crop->crop_id) ){	
+					$flag = true;
+			}
+		}
+		if ($flag == true) {
 			// remove the defined paddock ...
 			$database = DatabaseFactory::getFactory()->getConnection();
 			$sql = "DELETE FROM paddock WHERE paddock_id = :paddock_id";
@@ -401,44 +388,55 @@ class ConfigModel
 					}
 					// don't care so long as no errors
 					Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_DELETION_SUCCESSFUL'));
-					return true;
+					// update user session paddock information
+					Session::set('user_paddocks', DatabaseCommon::getPaddockDetails());
+					 true;
 				}
 			} catch (PDOException $e) {
 				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
 			} catch (Exception $e) {
 				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
-			}	
+			}				
+		} else {
+			Session::add('feedback_negative', Text::get('FEEDBACK_PADDOCK_DELETION_FAILED'));
+			return false;		
 		}
-		Session::add('feedback_negative', Text::get('FEEDBACK_PADDOCK_DELETION_FAILED'));
-		return false;
     }
 	
 	private static function deletePaddockZones($paddock_id)
     {
-		// remove all associated samples first ...
-		if (self::deletePaddockSamples($paddock_id)) {
-			// remove all associated zones ...
-			$database = DatabaseFactory::getFactory()->getConnection();
-			$sql = "DELETE FROM zone WHERE paddock_id = :paddock_id";
-			$query = $database->prepare($sql);
+		//if (self::paddockHasSamples($paddock_id)){
+		if (self::cropHasSamples($crop_id)){			
+			// remove all associated samples first ...
+			if (self::deletePaddockSamples($paddock_id)) {
+				// remove all associated zones ...
+				$database = DatabaseFactory::getFactory()->getConnection();
+				//$sql = "DELETE FROM zone WHERE paddock_id = :paddock_id";
+				$sql = "DELETE FROM zone WHERE crop_id = :crop_id";				
+				$query = $database->prepare($sql);
 
-			try {
-				$query->execute(array(':paddock_id' => $paddock_id));
-				$rows = $query->rowCount();
-				if ($rows > 0) {
-					if (Config::get('DEBUG_LOG')) {			
-						Session::add('_debug_', 'deletePaddockZones(true): rowcount='.print_r($rows, true));
+				try {
+					//$query->execute(array(':paddock_id' => $paddock_id));
+					$query->execute(array(':crop_id' => $crop_id));					
+					$rows = $query->rowCount();
+					if ($rows > 0) {
+						if (Config::get('DEBUG_LOG')) {			
+							Session::add('_debug_', 'deleteCropZones(true): rowcount='.print_r($rows, true));
+						}
+						// don't care how many zones so long as no errors ...
+						return true;
 					}
-					// don't care how many zones so long as no errors ...
-					return true;
-				}
-			} catch (PDOException $e) {
-				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
-			} catch (Exception $e) {
-				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
-			}	
-		}
-		return false;	
+				} catch (PDOException $e) {
+					Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+				} catch (Exception $e) {
+					Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+				}	
+			} 
+			return false;
+		} else {
+			// no samples collected for this crop
+			return true;
+		}			
 	}	
 
 	private static function deletePaddockSamples($paddock_id)
@@ -457,6 +455,8 @@ class ConfigModel
 						if (Config::get('DEBUG_LOG')) {			
 							Session::add('_debug_', 'deletePaddockSamples(true): rowcount='.print_r($rows, true));
 						}
+						// update user sample reports session variable
+						Session::set('user_reports', DatabaseCommon::getSampleDetails());
 						// don't care so long as no errors
 						return true;
 					}
@@ -471,77 +471,258 @@ class ConfigModel
 		}
 		return false;
 	}
+*/	
 	
 	/**
+     * Delete a specific farm
+     * @param int $farm_id id of the farm
+     * @return bool feedback (was the item deleted properly ?)
+     */
+	public static function deleteFarm($farm_id){
+		$paddocks = self::getPaddocksByFarmID($farm_id);
+		$flag = true;
+		foreach ($paddocks as $paddock){
+			$flag = false;
+			if(self::deletePaddock($paddock->paddock_id)){
+				$flag = true;
+			}
+		}
+		if($flag==true){	
+			if(self::deleteFarmUserByFarmID($farm_id)){
+				if(self::deleteFarmByFarmID($farm_id)){				
+					Session::add('feedback_positive', Text::get('FEEDBACK_FARM_DELETION_SUCCESSFUL'));
+					// farm data removed so update session variable
+					Session::set('user_farms', DatabaseCommon::getFarmDetails());
+					return true;
+				}				
+			}
+		}
+		Session::add('feedback_negative', Text::get('FEEDBACK_FARM_DELETION_FAILED'));
+		return false;
+	}
+
+    /**
      * Delete a specific paddock
      * @param int $paddock_id id of the paddock
      * @return bool feedback (was the item deleted properly ?)
-     */
-    public static function deleteCropByID($crop_id)
-    {
-        if ( !$crop_id ) {
-            return false;
-        }
-		// remove any associated zones first ...
-		if (self::deleteCropZones($crop_id)) {
-			// remove the defined paddock ...
-			$database = DatabaseFactory::getFactory()->getConnection();
-			$sql = "DELETE FROM crop WHERE crop_id = :crop_id";
-			$query = $database->prepare($sql);
-
-			try {
-				$query->execute(array(':crop_id' => $crop_id));
-				$rows = $query->rowCount();
-				if ($rows > 0) {
-					if (Config::get('DEBUG_LOG')) {			
-						Session::add('_debug_', 'deleteCropByID(true): rowcount='.print_r($rows, true));
-					}
-					// don't care so long as no errors
+     */	
+	
+	public static function deletePaddock($paddock_id){
+		$crops = self::getCropsByPaddockID($paddock_id);
+		$flag = true;
+		foreach ($crops as $crop){
+			$flag = false;
+			if(self::deleteCrop($crop->crop_id)){
+				$flag = true;
+			}
+		}
+		if($flag==true){			
+			if(self::deletePaddockByPaddockID($paddock_id)){
+				Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_DELETION_SUCCESSFUL'));
+				// paddock data removed so update session variable
+				Session::set('user_paddocks', DatabaseCommon::getPaddockDetails());
+				return true;
+			}
+		}
+		Session::add('feedback_negative', Text::get('FEEDBACK_PADDOCK_DELETION_FAILED'));
+		return false;
+	}
+	
+	/**
+	* Delete a specific crop
+	* @param int $fcrop_id id of the crop
+	* @return bool feedback (was the item deleted properly ?)
+	*/
+	
+	public static function deleteCrop($crop_id){		
+		$zones = self::getCropZones($crop_id);
+		$flag = true;
+		foreach ($zones as $zone){
+			$flag = false;
+			if(self::deleteSamples($zone->zone_id)){				
+				if(self::deleteLeafNumber($zone->zone_id)){
+					if(self::deleteYieldEstimate($zone->zone_id)){
+						// sample data removed so update session variable
+						Session::set('user_reports', DatabaseCommon::getSampleDetails());						
+						$flag = true;
+					}					
+				}				
+			}			
+		}
+		if($flag==true){			
+			if(self::deleteZonesByCropID($crop_id)){
+				if(self::deleteCropByCropID($crop_id)){
 					Session::add('feedback_positive', Text::get('FEEDBACK_CROP_DELETION_SUCCESSFUL'));
-					return true;
+					// reset user session variable
+					Session::set('user_crops', DatabaseCommon::getCropDetails());
+					return true;					
 				}
-			} catch (PDOException $e) {
-				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
-			} catch (Exception $e) {
-				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
-			}	
+			}
 		}
 		Session::add('feedback_negative', Text::get('FEEDBACK_CROP_DELETION_FAILED'));
 		return false;
-    }
-	
-	private static function deleteCropZones($crop_id)
-    {
-		// remove all associated samples first ...
-		if (self::deleteCropSamples($crop_id)) {
-			// remove all associated zones ...
-			$database = DatabaseFactory::getFactory()->getConnection();
-			$sql = "DELETE FROM zone WHERE crop_id = :crop_id";
-			$query = $database->prepare($sql);
-
-			try {
-				$query->execute(array(':crop_id' => $crop_id));
-				$rows = $query->rowCount();
-				if ($rows > 0) {
-					if (Config::get('DEBUG_LOG')) {			
-						Session::add('_debug_', 'deleteCropZones(true): rowcount='.print_r($rows, true));
-					}
-					// don't care how many zones so long as no errors ...
-					return true;
-				}
-			} catch (PDOException $e) {
-				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
-			} catch (Exception $e) {
-				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
-			}	
-		}
-		return false;	
 	}
+	
+	private static function deleteFarmUserByFarmID($farm_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM farm_users WHERE farm_id = :farm_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':farm_id' => $farm_id));
+			if (Config::get('DEBUG_LOG')) {	
+				Session::add('_debug_', 'deleteFarmUser('.$farm_id.')');
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;		
+	}	
+	
+	private static function deleteFarmByFarmID($farm_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM farm WHERE farm_id=:farm_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':farm_id' => $farm_id));
+			if (Config::get('DEBUG_LOG')) {	
+				Session::add('_debug_', 'deleteFarm('.$farm_id.')');		
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;		
+	}	
+	
+	private static function deletePaddockByPaddockID($paddock_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM paddock WHERE paddock_id = :paddock_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':paddock_id' => $paddock_id));			
+			if (Config::get('DEBUG_LOG')) {					
+				Session::add('_debug_', 'deletePaddock('.$paddock_id.')');
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;		
+	}
+	
+	private static function deleteCropByCropID($crop_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM crop WHERE crop_id = :crop_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':crop_id' => $crop_id));
+			if (Config::get('DEBUG_LOG')) {	
+				Session::add('_debug_', 'deleteCrop('.$crop_id.')');		
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;		
+	}
+	
+	private static function deleteZonesByCropID($crop_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM zone WHERE crop_id = :crop_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':crop_id' => $crop_id));			
+			if (Config::get('DEBUG_LOG')) {
+				Session::add('_debug_', 'deleteZones('.$crop_id.')');			
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;		
+	}
+	
+	private static function deleteSamples($zone_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM sample WHERE zone_id = :zone_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':zone_id' => $zone_id));
+			if (Config::get('DEBUG_LOG')) {
+				Session::add('_debug_', 'deleteSamples('.$zone_id.')');			
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;
+	}
+	
+	private static function deleteLeafNumber($zone_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM leaf_number WHERE zone_id = :zone_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':zone_id' => $zone_id));
+			if (Config::get('DEBUG_LOG')) {
+				Session::add('_debug_', 'deleteLeafNumber('.$zone_id.')');	
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;
+	}
+	
+	private static function deleteYieldEstimate($zone_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$sql = "DELETE FROM yield WHERE zone_id = :zone_id";
+		$query = $database->prepare($sql);				
+		try {
+			$query->execute(array(':zone_id' => $zone_id));
+			if (Config::get('DEBUG_LOG')) {					
+				Session::add('_debug_', 'deleteYieldEstimate('.$zone_id.')');		
+			}
+			return true;
+		} catch (PDOException $e) {
+			Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+		} catch (Exception $e) {
+			Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+		}
+		return false;
+	}
+	
+	private static function getCropZones($crop_id){
+		$database = DatabaseFactory::getFactory()->getConnection();
 
-private static function deleteCropSamples($crop_id)
+        $sql = "SELECT zone_id FROM zone WHERE crop_id = :crop_id";	
+		
+        $query = $database->prepare($sql);
+        $query->execute(array(':crop_id' => $crop_id));
+		
+		return $query->fetchAll();
+	}
+/*	
+	private static function deleteCropSamples($crop_id)
     {
 		// remove any associated yield estimates first ...
-		if (self::deleteCropZoneYieldEstimates($crop_id)) {			
+		//if (self::deletePaddockZoneYieldEstimates($paddock_id)) {
+		if (self::deleteYieldEstimatesByCropID($crop_id)) {			
 			if (self::cropHasSamples($crop_id)){
 				// remove all associated samples ...
 				$database = DatabaseFactory::getFactory()->getConnection();
@@ -569,8 +750,77 @@ private static function deleteCropSamples($crop_id)
 		return false;
 	}	
 	
+
+    public static function deleteCropByID($crop_id)
+    {
+        if ( !$crop_id ) {
+            return false;
+        }
+		// remove any associated zones first ...
+		if (self::deleteCropZones($crop_id)) {
+			// remove the defined crops ...
+			$database = DatabaseFactory::getFactory()->getConnection();
+			$sql = "DELETE FROM crop WHERE crop_id = :crop_id";
+			$query = $database->prepare($sql);
+
+			try {
+				$query->execute(array(':crop_id' => $crop_id));
+				$rows = $query->rowCount();
+				if ($rows > 0) {
+					if (Config::get('DEBUG_LOG')) {			
+						Session::add('_debug_', 'deleteCropByID(true): rowcount='.print_r($rows, true));
+					}
+					// don't care so long as no errors
+					Session::add('feedback_positive', Text::get('FEEDBACK_CROP_DELETION_SUCCESSFUL'));
+					// update user session paddock information
+					Session::set('user_crops', DatabaseCommon::getCropDetails());
+					return true;
+				}
+			} catch (PDOException $e) {
+				Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+			} catch (Exception $e) {
+				Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+			}	
+		}
+		Session::add('feedback_negative', Text::get('FEEDBACK_CROP_DELETION_FAILED'));
+		return false;
+    }
+	
+	private static function deleteCropZones($crop_id)
+    {
+		// remove all associated samples first ...
+		if (self::deleteCropSamples($crop_id)) {
+			if(self::deleteLeafNumberZoneByCropID($crop_id)){
+				// remove all associated zones ...
+				$database = DatabaseFactory::getFactory()->getConnection();
+				$sql = "DELETE FROM zone WHERE crop_id = :crop_id";
+				$query = $database->prepare($sql);
+
+				try {
+					$query->execute(array(':crop_id' => $crop_id));
+					$rows = $query->rowCount();
+					if ($rows > 0) {
+						if (Config::get('DEBUG_LOG')) {			
+							Session::add('_debug_', 'deleteCropZones(true): rowcount='.print_r($rows, true));
+						}
+						// reset the session variable
+						Session::set('user_reports', DatabaseCommon::getSampleDetails());
+						// don't care how many zones so long as no errors ...
+						return true;
+					}
+				} catch (PDOException $e) {
+					Session::add('feedback_negative', 'PDOException: '.$e->getMessage());
+				} catch (Exception $e) {
+					Session::add('feedback_negative', 'General Exception: '.$e->getMessage());
+				}			
+			}
+			return false;
+		}
+		return false;	
+	}
+
 	//Todo
-	private static function deleteCropZoneYieldEstimates($crop_id)
+	private static function deleteYieldEstimatesByCropID($crop_id)
     {
 		// determine if yield estimates exist for the paddock ...
 		if (self::cropHasYieldEstimates($crop_id)){
@@ -583,7 +833,7 @@ private static function deleteCropSamples($crop_id)
 				$rows = $query->rowCount();
 				if ($rows > 0) {
 					if (Config::get('DEBUG_LOG')) {			
-						Session::add('_debug_', 'deleteCropZoneYieldEstimates(true): rowcount='.print_r($rows, true));
+						Session::add('_debug_', 'deleteYieldEstimatesByCropID(true): rowcount='.print_r($rows, true));
 					}
 					// don't care so long as no errors
 					return true;
@@ -628,7 +878,7 @@ private static function deleteCropSamples($crop_id)
 			return true;
 		}
 	}
-	
+*/	
 	private static function getFarmPaddockCropIDs($farm_id, $paddock_id){
 		
 		$database = DatabaseFactory::getFactory()->getConnection();
@@ -776,13 +1026,13 @@ private static function deleteCropSamples($crop_id)
 		return false;			
 	}
 	
-	public static function cropsExist($paddock_id){
+	public static function cropsExist($crop_id){
 		$database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT crop_id FROM crop WHERE paddock_id = :paddock_id";	
+        $sql = "SELECT crop_id FROM crop WHERE crop_id = :crop_id";	
 		
         $query = $database->prepare($sql);
-        $query->execute(array(':paddock_id' => $paddock_id));
+        $query->execute(array(':crop_id' => $crop_id));
 		if ($query->rowCount() == 1) {
 			if (Config::get('DEBUG_LOG')) {			
 				Session::add('_debug_', 'cropsExist(true)');

@@ -24,10 +24,12 @@ class ConfigController extends Controller
      */
     public function index()
     {
+		
 		$this->View->render('config/index', array(
-			'farm_details' => DatabaseCommon::buildJSONcollection(),		
-            'farm_info' => DatabaseCommon::getFarmDetails(),
-			'paddock_info' => DatabaseCommon::getPaddockDetails()	
+			'farm_details' => DatabaseCommon::buildJSONcollection($setup=true),		
+            'farm_info' => count(DatabaseCommon::getFarmDetails()),
+			'paddock_info' => count(DatabaseCommon::getPaddockDetails()),
+			'crop_info' => count(DatabaseCommon::getCropDetails())
         ));	
     }
 
@@ -193,6 +195,8 @@ class ConfigController extends Controller
     {
 	
 		$user_id = Session::get('user_id');
+		$farm_id = Request::post('farm_id');
+		$return = Request::post('return_page');
 		
 		if (Request::post('submit') == 'Update') {	
 			$success = ConfigModel::updateFarm(			
@@ -201,23 +205,25 @@ class ConfigController extends Controller
 				Request::post('farm_contact_lastname'),
 				Request::post('farm_email_address'),
 				Request::post('farm_phone_number'),
-				Request::post('farm_id'));
+				$farm_id);
 		} else {
-			$success = ConfigModel::deleteFarmByID(Request::post('farm_id'));
+			//$success = ConfigModel::deleteFarmByID(Request::post('farm_id'));
+			$success = ConfigModel::deleteFarm($farm_id);
 		}
 		
-		if ($success) {
+		if ($success==true) {
 			// Does this user still have any farms?
 			$farms_exist = ConfigModel::farmsExist($user_id);
 			if ($farms_exist) {
 				// back to the farm editing page
-				Redirect::to(Request::post('return_page'));
+				Redirect::to($return);
 			} else {
-				Redirect::to(Request::post('dashboard'));
+				// no farms so back to dashboard
+				Redirect::to('dashboard/index');
 			}			
 		} else {
 			// display errors & ...
-			Redirect::to('config');
+			Redirect::to('config/index');
 		}
 		
         
@@ -230,6 +236,7 @@ class ConfigController extends Controller
      */
     public function configUpdateDeletePaddock()
     {
+		$return = Request::post('return_page');
 		
 		if (Request::post('submit') == 'Update') {		
 			$success = ConfigModel::updatePaddockByID(
@@ -244,30 +251,33 @@ class ConfigController extends Controller
 				Request::post('paddock_plant_spacing'),
 				Request::post('paddock_target_population'),
 				Request::post('variety_id'));			
-		} else {
-			$success = ConfigModel::deletePaddockByID(Request::post('paddock_id'));
+		} else {			
+			//$success = ConfigModel::deletePaddockByID(Request::post('paddock_id'));
+			$success = ConfigModel::deletePaddock(Request::post('paddock_id'));	
 		}
 		
-		if ($success) {
+		if ($success==true) {
 			$paddocks_exist = ConfigModel::paddocksExist(Session::get('_farm_id'));
 			if ($paddocks_exist) {
-				Redirect::to(Request::post('return_page'));			
+				Redirect::to($return);			
 			} else {
-				Redirect::to('config');
+				// Could still be farms and paddocks
+				Redirect::to('config/index');
 			}
 		} else {
 			// display errors & ...
-			Redirect::to('config');
+			Redirect::to('config/index');
 		}
         
     }
 	
 	 public function configUpdateDeleteCrop()
     {
-		
+		$return = Request::post('return_page');
+		$crop_id = Request::post('crop_id');
 		if (Request::post('submit') == 'Update') {		
 			$success = ConfigModel::updateCropByID(
-				Request::post('crop_id'),
+				$crop_id,
 				Request::post('crop_zone_count'),
 				Request::post('crop_zone_sample_count'),
 				Request::post('crop_plant_date'),
@@ -277,19 +287,20 @@ class ConfigController extends Controller
 				Request::post('crop_target_population'),
 				Request::post('variety_id'));			
 		} else {
-			$success = ConfigModel::deleteCropByID(Request::post('crop_id'));
+			//$success = ConfigModel::deleteCropByID(Request::post('crop_id'));
+			$success = ConfigModel::deleteCrop($crop_id);		
 		}
 		
-		if ($success) {
-			$crops_exist = ConfigModel::cropsExist(Session::get('_paddock_id'));
+		if ($success==true) {
+			$crops_exist = ConfigModel::cropsExist($crop_id);
 			if ($crops_exist) {
-				Redirect::to(Request::post('return_page'));			
-			} else {
-				Redirect::to('config');
+				Redirect::to($return);			
+			} else {				
+				Redirect::to('config/index');
 			}
 		} else {
 			// display errors & ...
-			Redirect::to('config');
+			Redirect::to('config/index');
 		}
         
     }

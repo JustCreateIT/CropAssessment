@@ -108,8 +108,9 @@ class SetupController extends Controller
      */
     public function crop()
     {			
+		$setup = true;
 		$this->View->render('setup/create/crop', array(
-			'farm_details' => DatabaseCommon::buildJSONcollection(),
+			'farm_details' => DatabaseCommon::buildJSONcollection($setup),
 			//'farms' => DatabaseCommon::getFarmDetails(),
 			//'paddocks' => DatabaseCommon::getPaddockDetails(),			
             'crop_variety' => SetupModel::getCropVarieties()		 
@@ -132,10 +133,9 @@ class SetupController extends Controller
 
     public function user()
     {
-        $farm_id = Session::get('_farm_id');
-		
+        $farm_id = Session::get('farm_id');
 		$this->View->render('setup/create/user', array(
-			'farm_details' => DatabaseCommon::buildJSONcollection()	
+			'farm_details' => DatabaseCommon::buildJSONcollection($setup = true)	
         ));
     }	
 		

@@ -261,7 +261,10 @@ class LoginModel
         Session::set('user_phone_number', $user_phone_number);		
         Session::set('user_account_type', $user_account_type);
         Session::set('user_provider_type', 'DEFAULT');
-
+		Session::set('user_farms', DatabaseCommon::getFarmDetails());
+		Session::set('user_paddocks', DatabaseCommon::getPaddockDetails());
+		Session::set('user_crops', DatabaseCommon::getCropDetails());
+		Session::set('user_reports', DatabaseCommon::getSampleDetails());
         // get and set avatars
         Session::set('user_avatar_file', AvatarModel::getPublicUserAvatarFilePathByUserId($user_id));
         Session::set('user_gravatar_image_url', AvatarModel::getGravatarLinkByEmail($user_email));

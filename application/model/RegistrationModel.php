@@ -106,15 +106,15 @@ class RegistrationModel
 		
 		$user_first_name = strip_tags(Request::post('user_first_name'));
         $user_last_name = strip_tags(Request::post('user_last_name'));        		
-        $user_email = strip_tags(Request::post('user_email'));
-        $user_email_repeat = strip_tags(Request::post('user_email_repeat'));
+        $user_email = strip_tags(Request::post('user_email_address'));
+        $user_email_repeat = $user_email;
 		$user_phone_number = strip_tags(Request::post('user_phone_number'));
-        $user_password_new = self::generateRandomPassword(16);
-        $user_password_repeat = $user_password_new;
+		$user_password = strip_tags(Request::post('user_password'));
+        $user_password_repeat = $user_password;
 		$farm_id = Request::post('farm_id');
 		
 		// check email address and password
-		if (!self::validateUserEmail($user_email, $user_email_repeat) AND !self::validateUserPassword($user_password_new, $user_password_repeat)) {
+		if (!self::validateUserEmail($user_email, $user_email_repeat) AND !self::validateUserPassword($user_password, $user_password_repeat)) {
 			return false;		
 		}
 		
@@ -122,8 +122,8 @@ class RegistrationModel
         // @see php.net/manual/en/function.password-hash.php for more, especially for potential options
         $user_password_hash = password_hash($user_password_new, PASSWORD_DEFAULT);
 
-        // check if email already exists
-        if (UserModel::doesEmailAlreadyExist($user_email)) {
+		// check if email already exists
+		if (UserModel::doesEmailAlreadyExist($user_email)) {
 			// This user already exists so get user_id
 			$user_id = UserModel::getUserIdByUserEmail($user_email);
 			// check if already linked to farm (farm_id)
@@ -134,37 +134,37 @@ class RegistrationModel
 				Session::add('feedback_negative', Text::get('FEEDBACK_FARMUSER_ALREADY_LINKED'));
 				return false;
 			}            
-        }
+		}
 
-        // generate random hash for email verification (40 char string)
-        $user_activation_hash = sha1(uniqid(mt_rand(), true));
+		// generate random hash for email verification (40 char string)
+		$user_activation_hash = sha1(uniqid(mt_rand(), true));
 
 		// Current user_account_types [public=>1,standard=>5,owner=>9,administrator=>88]
 		$user_account_type=5; // Linked farm user user_account_type=5 [user_account_name=>standard,user_account_id=>5]		
 
-        if (!self::writeNewUserToDatabase($user_first_name, $user_last_name, $user_password_hash, $user_email, $user_phone_number, time(), $user_activation_hash, $user_account_type)) {
-            Session::add('feedback_negative', Text::get('FEEDBACK_ACCOUNT_CREATION_FAILED'));
-            return false; // no reason not to return false here
-        }		
+		if (!self::writeNewUserToDatabase($user_first_name, $user_last_name, $user_password_hash, $user_email, $user_phone_number, time(), $user_activation_hash, $user_account_type)) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_ACCOUNT_CREATION_FAILED'));
+			return false; // no reason not to return false here
+		}		
 
 		if (!$user_id) {
 			// get user_id of the user that has been created, to keep things clean we DON'T use lastInsertId() here
 			$user_id = UserModel::getUserIdByUserEmail($user_email);		
 		} 
-        if (!$user_id) {
-            Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
-            return false;
-        }
+		if (!$user_id) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+		}
 
-        // send verification email
-        if (self::sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash)) {
-            return true;
-        }
+		// send verification email
+		if (self::sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash)) {
+			return true;
+		}
 
-        // if verification email sending failed: instantly delete the user
-        self::rollbackRegistrationByUserId($user_id);
-        Session::add('feedback_negative', Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_FAILED'));
-        return false;
+		// if verification email sending failed: instantly delete the user
+		self::rollbackRegistrationByUserId($user_id);
+		Session::add('feedback_negative', Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_FAILED'));
+		return false;
 	}
 	
 	private function generateRandomPassword($length = 16){

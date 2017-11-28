@@ -88,6 +88,9 @@ class Mail
         $mail->From = $from_email;
         $mail->FromName = $from_name;
         $mail->AddAddress($user_email);
+		if (null !== AdminUserModel::getCurrent()->getCurrentUserEmail()){
+			$mail->addBCC(AdminUserModel::getCurrent()->getCurrentUserEmail());		
+		}
         $mail->Subject = $subject;
         $mail->Body = $body;
 		

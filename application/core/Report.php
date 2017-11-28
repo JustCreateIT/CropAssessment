@@ -370,9 +370,10 @@
 	}
 	
 	private function getHTMLSampleDataEmergence(){
-		// display all collected samples for specific farm/paddock @ emergence
+		// display all collected samples for specific farm/paddock/crop @ emergence
 		
-		$data = self::buildSampleDataTable( $this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id );
+		//$data = self::buildSampleDataTable( $this->crop->farm_id, $this->crop->paddock_id, $this->crop->crop_id, $this->growth_stage_id );
+		$data = self::buildSampleDataTable( $this->crop->crop_id, $this->growth_stage_id );
 		
 		$html = '
 		<h2 style="margin:20 0 0 0;text-transform: none;">Zone Sample Results</h2>				
@@ -424,7 +425,8 @@
 		}
 		$html .= '</tbody></table>';
 		
-		$html_comments = self::getZoneCommentsByGrowthStageID($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);
+		//$html_comments = self::getZoneCommentsByGrowthStageID($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);
+		$html_comments = self::getZoneCommentsByGrowthStageID($this->crop->crop_id, $this->growth_stage_id);		
 		
 		return $html.$html_comments;
 	}
@@ -432,7 +434,8 @@
 	private function getHTMLSampleDataThreeFiveBulbing(){
 		// display all collected samples for specific farm/paddock @ 3leaf,5leaf,bulbing		
 
-		$data = self::buildSampleDataTable($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);
+		//$data = self::buildSampleDataTable($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);
+		$data = self::buildSampleDataTable($this->crop->crop_id, $this->growth_stage_id);		
 
 		$html = '
 		<h2 style="margin:20 0 0 0;text-transform: none;">Zone Sample Results</h2>					
@@ -515,7 +518,8 @@
 	private function getHTMLSampleDataHarvest(){
 		
 		// display all collected samples for specific farm/paddock @ harvest
-		$data = self::buildSampleDataTable($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);		
+		//$data = self::buildSampleDataTable($this->crop->farm_id, $this->crop->paddock_id, $this->growth_stage_id);
+		$data = self::buildSampleDataTable($this->crop->crop_id, $this->growth_stage_id);		
 		/*
 		echo '<pre>';
 		echo var_dump($data);
@@ -578,7 +582,8 @@
 		return $html.$html_comments;		
 	}
 	
-	private function getZoneCommentsByGrowthStageID($farm_id, $paddock_id, $growth_stage_id) {
+	//private function getZoneCommentsByGrowthStageID($farm_id, $paddock_id, $growth_stage_id) {
+	private function getZoneCommentsByGrowthStageID($crop_id, $growth_stage_id) {		
         
 		/* At the specific growth stage get all samples for each zone; */
 		$database = DatabaseFactory::getFactory()->getConnection();
@@ -587,15 +592,13 @@
 				WHERE				
 				s.growth_stage_id = :growth_stage_id AND
 				s.zone_id = z.zone_id AND
-				s.paddock_id = :paddock_id AND				
-				s.farm_id = :farm_id				
+				s.crop_id = :crop_id				
 				ORDER BY 
 				s.zone_sample_plot_id";	
 
         $query = $database->prepare($sql);
         $query->execute(array(':growth_stage_id' => $growth_stage_id,
-							':paddock_id' => $paddock_id,
-							':farm_id' =>$farm_id));
+							':crop_id' => $crop_id));
 		$zone_comments = array();
         foreach ($query->fetchAll() as $comment) {	
 			//echo print_r($data->zone_id, true);
@@ -626,7 +629,8 @@
 	}
 
 	// To-do - move to separate ZoneSampleData class
-	private function buildSampleDataTable($farm_id, $paddock_id, $growth_stage_id, $saveCSV = false){
+	//private function buildSampleDataTable($farm_id, $paddock_id, $crop_id, $growth_stage_id, $saveCSV = false){
+	private function buildSampleDataTable($crop_id, $growth_stage_id, $saveCSV = false){		
 
 		/* At the specific growth stage get all samples for each zone; */
 		$database = DatabaseFactory::getFactory()->getConnection();
@@ -637,15 +641,13 @@
 			WHERE				
 			s.growth_stage_id = :growth_stage_id AND
 			s.zone_id = z.zone_id AND
-			s.paddock_id = :paddock_id AND				
-			s.farm_id = :farm_id				
+			s.crop_id = :crop_id			
 			ORDER BY 
 			z.zone_id, s.zone_sample_plot_id";	
 
         $query = $database->prepare($sql);
         $query->execute(array(':growth_stage_id' => $growth_stage_id,
-							':paddock_id' => $paddock_id,
-							':farm_id' =>$farm_id));
+							':crop_id' => $crop_id));
 
 		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');
 		$plot_width = $this->crop->crop_sample_plot_width;

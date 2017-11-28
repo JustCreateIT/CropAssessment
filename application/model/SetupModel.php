@@ -94,6 +94,7 @@ class SetupModel
 			if ($query->rowCount() == 1) {
 				Session::set('farm_id', $farm_id);
 				Session::add('feedback_positive', Text::get('FEEDBACK_FARM_CREATION_SUCCESSFUL'));
+				Session::set('user_farms', DatabaseCommon::getFarmDetails());
 				return true;
 			}
         }
@@ -343,12 +344,13 @@ class SetupModel
 			Session::set('paddock_id', $paddock_id);
 			Session::set('paddock_form_input', null);
 			Session::set('paddock_map_form_input', null);
-			
+			Session::set('user_paddocks', DatabaseCommon::getPaddockDetails());	
 			Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_CREATION_SUCCESSFUL'));
 			return true;		
 		} else {
 			// Rollback transaction
-			self::DeleteFromPaddockByFarmID($farm_id);			
+			self::DeleteFromPaddockByFarmID($farm_id);
+			Session::set('user_paddocks', DatabaseCommon::getPaddockDetails());	
 			Session::add('feedback_negative', Text::get('FEEDBACK_PADDOCK_CREATION_FAILED').' [PADDOCK ROLLBACK]');
 			//Session::add('feedback_negative', $query->rowCount());
 			return false;		
@@ -434,20 +436,23 @@ class SetupModel
 			// Iterate through each zone (name and percentage) and add to zone table
 			if(self::IterateCropZones($crop_zones)){
 				Session::add('feedback_positive', Text::get('FEEDBACK_CROP_CREATION_SUCCESSFUL'));
+				Session::set('user_crops', DatabaseCommon::getCropDetails());
 				// Clear input form session variables
 				Session::set('crop_form_input', null);
 				Session::set('zone_form_input', null);
 				return true;
 			} else {
 				// Rollback transaction
-				self::DeleteFromCropByPaddockID($paddock_id);
+				self::DeleteFromCropByCropID($crop_id);
 				self::DeleteFromZoneByCropID($crop_id);
+				Session::set('user_crops', DatabaseCommon::getCropDetails());
 				Session::add('feedback_negative', Text::get('FEEDBACK_CROP_CREATION_FAILED').' [CROP->ZONE ROLLBACK]');
 				return false;
 			}								
 		} else {
 			// Rollback transaction
-			self::DeleteFromCropByPaddockID($paddock_id);			
+			self::DeleteFromCropByCropID($crop_id);
+			Session::set('user_crops', DatabaseCommon::getCropDetails());
 			Session::add('feedback_negative', Text::get('FEEDBACK_CROP_CREATION_FAILED').' [CROP ROLLBACK]');
 			//Session::add('feedback_negative', $query->rowCount());
 			return false;		
@@ -463,11 +468,11 @@ class SetupModel
 	}
 	
 	/* rollback method */
-	public static function DeleteFromCropByPaddockID($paddock_id){
+	public static function DeleteFromCropByCropID($crop_id){
 		$database = DatabaseFactory::getFactory()->getConnection();
 
-        $query = $database->prepare("DELETE FROM crop WHERE paddock_id = :paddock_id");
-        $query->execute(array(':paddock_id' => $paddock_id));			
+        $query = $database->prepare("DELETE FROM crop WHERE crop_id = :crop_id");
+        $query->execute(array(':crop_id' => $crop_id));			
 	}
 	
 	/* rollback method */	

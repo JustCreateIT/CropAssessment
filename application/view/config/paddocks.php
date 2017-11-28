@@ -10,7 +10,7 @@
 			<tr>
 				<td><label>Paddock<label></td>
 				<td><label>Address<label></td>
-				<td><label style="width:50px;">Area (h)<label></td>
+				<td><label>Area (h)<label></td>
 			<tr>
 			</thead>
 			<?php foreach ($this->paddocks as $paddock) { 
@@ -18,8 +18,8 @@
 			
 			<form action="<?= config::get("URL"); ?>config/configUpdateDeletePaddock" method="post">
 				<tr>
-					<td><input style="width:100px;" type="text" name="paddock_name" value="<?= $paddock->paddock_name; ?>"></td>
-					<td><input style="width:250px;" type="text" name="paddock_address" value="<?= $paddock->paddock_address; ?>"></td>
+					<td><input style="width:300px;" type="text" name="paddock_name" value="<?= $paddock->paddock_name; ?>"></td>
+					<td><input style="width:300px;" type="text" name="paddock_address" value="<?= $paddock->paddock_address; ?>"></td>
 					<td><input style="width:50px;" type="number" step=0.01 min=0 name="paddock_area" value="<?= $paddock_area ?>"></td>
 					<td><input type="submit" name="submit" value="Update" <?php if((Session::get("user_account_type") == 1)){ echo 'disabled style="color: #ccc; background-color: transparent; border: 2px solid #ccc; cursor: default;"'; } ?>/></td><td><input type="submit" name="submit" value="Delete" <?php if((Session::get("user_account_type") == 1)){ echo 'disabled style="color: #ccc; background-color: transparent; border: 2px solid #ccc; cursor: default;"'; } ?>/></td>
 				</tr>

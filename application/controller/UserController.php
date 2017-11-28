@@ -36,6 +36,22 @@ class UserController extends Controller
 
     }
 
+
+	public function add(){
+		
+		/*
+		echo '<pre>';
+		var_dump($_SESSION);
+		var_dump(DatabaseCommon::getFarmDetails());
+		echo '</pre>';
+		*/
+		
+		$this->View->render('user/add', array( 
+			'farm_details' => DatabaseCommon::getFarmDetails(),
+			'account_types' => DatabaseCommon::getAccountTypes()				
+        ));	
+	}
+
     	
     /**
      * Show edit-my-user-details page
@@ -67,7 +83,17 @@ class UserController extends Controller
 		UserModel::editUser($firstname, $lastname, $email, $phone);
 		// display feedback (errors/success)
         Redirect::to('user/editUser');
-    }	
+    }
+
+    // make this POST
+    public function actionAddUser()
+    {
+        
+		RegistrationModel::registerFarmUser();
+		// display feedback (errors/success)
+        Redirect::to('user/add');
+    }
+	
 
     /**
      * Edit avatar

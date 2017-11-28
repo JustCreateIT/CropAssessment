@@ -19,15 +19,15 @@
 				<img src="<?php echo Config::get('URL'); ?>images/farm_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Farm</figcaption>
 			</figure></button>
-			<button type="submit" name="setup" value="paddock"><figure class="item">
+			<button type="submit" name="setup" value="paddock" <?php if (count(Session::get('user_farms')) == 0) { echo 'disabled'; } ?>><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/paddock_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Paddock</figcaption>
 			</figure></button>
-			<button type="submit" name="setup" value="crop"><figure class="item">
+			<button type="submit" name="setup" value="crop" <?php if (count(Session::get('user_paddocks')) == 0) { echo 'disabled'; } ?>><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/crop_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Define A New Crop</figcaption>
 			</figure></button>
-			<button type="submit" name="setup" value="user"><figure class="item">
+			<button type="submit" name="setup" value="user" <?php if (count(Session::get('user_farms')) == 0) { echo 'disabled'; } ?>><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/add_user.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Add Users To Your Farm</figcaption>
 			</figure></button>
