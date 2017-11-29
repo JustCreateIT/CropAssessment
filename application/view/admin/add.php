@@ -2,10 +2,9 @@
     <div class="box">
         <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>
-        <h3>Add a new user</h3>
         <div class="form_input">
 			<form action="<?= config::get("URL"); ?>admin/actionAddUser" style="width:350px;margin: 0 auto;" method="post">
-			<h1>Administration Panel</h1>
+			<h1>Add a new user</h1>
 			<div>
 				<label for="user_first_name">First name:</label>
 			</div>

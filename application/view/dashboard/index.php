@@ -16,7 +16,7 @@
 		</figure></button>
 		<button type="submit" name="dashboard" value="config" <?php if (count(Session::get('user_farms')) == 0) { echo 'disabled'; } ?>><figure class="item">
 			<img src="<?php echo Config::get('URL'); ?>images/edit_data.png"/>
-			<figcaption class="responsive caption" data-min="10" data-max="18">View Or Update Existing Farm Information</figcaption>
+			<figcaption class="responsive caption" data-min="10" data-max="18">Edit Existing Farm Information</figcaption>
 		</figure></button>					
 	</form>	
 </div>
