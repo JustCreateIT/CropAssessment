@@ -89,7 +89,7 @@ class ConfigController extends Controller
 		
 		$this->View->render('config/crops', array(
                 'paddock' => ConfigModel::getPaddock($paddock_id),
-				'crops' => ConfigModel::getCropsByCropID($crop_id),
+				'crops' => ConfigModel::getCropsByPaddockID($paddock_id),
 				'variety_data' => ConfigModel::getVarietyData(),
 				'paddock_id' => $paddock_id,
 				'crop_id' => $crop_id
