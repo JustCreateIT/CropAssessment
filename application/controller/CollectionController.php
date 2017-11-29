@@ -202,12 +202,21 @@ class CollectionController extends Controller
 		$previous_page = Session::get('previous_page');
 		$growth_stage_id = strtolower(str_ireplace('.php', '', basename($_SERVER['QUERY_STRING'])));
 		$growth_stage_name = DatabaseCommon::getGrowthStageNameByID($growth_stage_id);
+		
+		/*
+		if ($growth_stage_id!=1){
+			$population_info = CollectionModel::zonePopulationByGrowthStages($crop_id);
+		} else {
+			$population_info = null;
+		}
+		*/
         $this->View->render('collection/'.$growth_stage_name, array(
 			'farm_name' => DatabaseCommon::getFarmNameByID($farm_id),		
 			'paddock_name' => DatabaseCommon::getPaddockNameByID($paddock_id),
 			'crop_plant_date' => DatabaseCommon::getCropPlantDate($crop_id),
             'zone_info' => DatabaseCommon::getCropZones($crop_id),			
-			'sample_info' => DatabaseCommon::getZoneSamples($crop_id),			
+			'sample_info' => DatabaseCommon::getZoneSamples($crop_id),
+			'population_info' => json_encode(CollectionModel::zonePopulationByGrowthStages($crop_id)),
             'growth_stage_id' => $growth_stage_id,
 			'farm_id' => $farm_id,
             'paddock_id' => $paddock_id,

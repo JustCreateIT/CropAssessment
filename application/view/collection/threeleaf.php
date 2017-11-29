@@ -3,7 +3,7 @@
 	<div class="input-box">
         <!-- echo out the system feedback (error and success messages) -->
         <?php 
-			$this->renderFeedbackMessages(); 
+			$this->renderFeedbackMessages();
 			/* Set current page name */
 			Session::set('page', basename(__FILE__, ".php"));
 		?><form id="imageEmail"  method="post" action="<?php echo Config::get('URL');?>collection/enterCollectionData_action" enctype="multipart/form-data">
@@ -33,7 +33,7 @@
 					<input type="date" name="sample_date" value="<?php echo date("Y-m-d"); ?>" required />
 				</div>
 				<div class='float_right'><label>Crop Zone</label>
-					<select name="zone_id">
+					<select name="zone_id" id="zone_id">
 						<?php foreach ($this->zone_info as $zone_info) { ?>
 							<option value="<?= $zone_info->zone_id; ?>"><?= $zone_info->zone_name; ?></option>
 						<?php } ?>
@@ -58,7 +58,7 @@
 						foreach ($this->sample_info as $sample_info) { ?>
 							<tr>
 								<td style="padding:0px; margin:0px; width:50px;"><input style="padding: 0 0 0 0; text-align: center;" type="text" name="sample_id[]" value="<?= $sample_info->sample_id; ?>" tabindex="-1" readonly></td>
-								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=1 min=0 name="sample_count[]"></td>
+								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=1 min=0 name="sample_count[]" id="sample_count_<?= $index; ?>" required></td>
 								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=0.01 min=0 name="sample_ela_score[]" required></td>
 								<td style="padding:0px; margin:0px; height:37px; background-color: #fff;">
 									<div class="image-upload" id="image-upload_<?= $index; ?>">
@@ -81,6 +81,7 @@
 				<input type="hidden" name="farm_id" value="<?php echo $this->farm_id ?>"/>
 				<input type="hidden" name="paddock_id" value="<?php echo $this->paddock_id ?>"/>
 				<input type="hidden" name="crop_id" value="<?php echo $this->crop_id ?>"/>
+				<input type="hidden" name="population_info" id="population_info" value='<?php echo $this->population_info ?>'/>
 				<div class="submit_float_left"> 
 					<div class="app-button" style="margin:0; padding:0;">                
 						<a href="<?php echo Config::get('URL'); ?>collection">Back</a>

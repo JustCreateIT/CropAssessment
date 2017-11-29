@@ -358,4 +358,23 @@ class CollectionModel
         return false;
     }
 	
+	public static function zonePopulationByGrowthStages($crop_id){
+
+		if (!$crop_id) {
+            return null;
+        }
+		// iterate through each of the five growth stages to find population counts
+		// these are used to pre-populate collection forms
+		for ($i=1;$i<6;$i++){
+			$database = DatabaseFactory::getFactory()->getConnection();
+			$sql = "SELECT sample_count, zone_id, zone_sample_plot_id FROM sample WHERE crop_id = :crop_id AND growth_stage_id = :growth_stage_id";		
+			$query = $database->prepare($sql);
+			$query->execute(array(':crop_id' => $crop_id, ':growth_stage_id' => $i));
+			if ($query->rowcount() > 0 ) {
+				return $query->fetchAll();
+			}
+		}
+		return null;
+	}			
+		
 }

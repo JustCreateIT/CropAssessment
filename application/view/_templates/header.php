@@ -93,7 +93,9 @@
 				echo '<script src="'.Config::get('URL').'scripts/mean_leaf_number.js"></script>';
 				echo "\r\n\t";
 			case '4':	// growth_stage => bulbing
-			case '5':	// growth_stage => harvest
+				echo '<script src="'.Config::get('URL').'scripts/sample_populations.js"></script>';
+				echo "\r\n\t";			
+			case '5':	// growth_stage => harvest	
 			case 'enterdata':
 				echo '<script src="'.Config::get('URL').'scripts/imageEmail.js"></script>';
 				echo "\r\n\t";			
