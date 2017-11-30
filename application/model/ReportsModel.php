@@ -22,13 +22,14 @@ class ReportsModel
 		/* At the specific growth stage get all sample counts for each zone; */
 
 		$database = DatabaseFactory::getFactory()->getConnection();
-		
+
+/*		
 		$sql = "SELECT 
 				AVG(s.sample_count) as sample_plant_average,
 				AVG(s.sample_ela_score) as ground_cover_average, 
 				AVG(s.sample_bulb_weight) as sample_bulb_average, s.zone_id,
-				z.zone_name, z.zone_paddock_percentage, 
-				p.paddock_area, 
+				z.zone_name, z.zone_paddock_percentage,
+				p.paddock_area, p.paddock_google_area,
 				c.crop_plant_date, c.crop_bed_width, c.crop_bed_rows, 
 				c.crop_plant_spacing, c.crop_target_population, c.crop_sample_plot_width 
 			FROM 
@@ -36,6 +37,7 @@ class ReportsModel
 			WHERE				
 				s.growth_stage_id = :growth_stage_id AND
 				p.paddock_id = :paddock_id AND
+				c.crop_id = :crop_id AND
 				s.zone_id = z.zone_id AND
 				s.crop_id = z.crop_id AND
 				s.paddock_id = p.paddock_id AND
@@ -46,9 +48,28 @@ class ReportsModel
 			ORDER BY 
 				z.zone_id";
 		
+*/		
+				
+		$sql = "SELECT 
+					AVG( s.sample_count ) AS sample_plant_average, AVG( s.sample_ela_score ) AS ground_cover_average, 
+					AVG( s.sample_bulb_weight ) AS sample_bulb_average, s.zone_id, z.zone_name, z.zone_paddock_percentage, 
+					p.paddock_area, p.paddock_google_area, c.crop_plant_date, c.crop_bed_width, c.crop_bed_rows, 
+					c.crop_plant_spacing, c.crop_target_population, c.crop_sample_plot_width
+				FROM 
+					sample s, zone z, paddock p, crop c
+				WHERE 
+					s.growth_stage_id =:growth_stage_id
+					AND p.paddock_id =:paddock_id 
+					AND c.crop_id =:crop_id 
+					AND s.zone_id = z.zone_id
+					AND s.crop_id = z.crop_id
+					AND s.crop_id = c.crop_id
+				GROUP BY s.zone_id
+				ORDER BY z.zone_id";				
+		
         $query = $database->prepare($sql);
         //$query->execute(array(':growth_stage_id' => $growth_stage_id,':paddock_id' => $paddock_id, ':crop_id' => $crop_id));
-		$query->execute(array(':growth_stage_id' => $growth_stage_id,':paddock_id' => $paddock_id));
+		$query->execute(array(':growth_stage_id' => $growth_stage_id,':paddock_id' => $paddock_id, ':crop_id' => $crop_id));
 		
 		//$zone_count = DatabaseCommon::getPaddockZoneCount($farm_id, $paddock_id);
 		$zone_count = DatabaseCommon::getCropZoneCount($crop_id);		
@@ -111,12 +132,16 @@ class ReportsModel
 			$zone_sample_counts[$result->zone_id]->sample_average_weight = $zone_sample_weight_kg_sqm;
 			$zone_sample_counts[$result->zone_id]->zone_name = !empty($result->zone_name)? $result->zone_name: Statistics::getCharFromNumber($i);
             $zone_sample_counts[$result->zone_id]->zone_paddock_percentage = $result->zone_paddock_percentage;
-			$zone_sample_counts[$result->zone_id]->paddock_area = $result->paddock_area;
-			$zone_area = ($result->zone_paddock_percentage/100)*$result->paddock_area;
+			$paddock_area = $result->paddock_google_area > 0 ? $result->paddock_google_area : $result->paddock_area;
+			//$zone_sample_counts[$result->zone_id]->paddock_area = $result->paddock_area;
+			//$zone_area = ($result->zone_paddock_percentage/100)*$result->paddock_area;
+			$zone_sample_counts[$result->zone_id]->paddock_area = $paddock_area;
+			$zone_area = ($result->zone_paddock_percentage/100)*$paddock_area;			
 			$zone_sample_counts[$result->zone_id]->zone_area = $zone_area;
 			$zone_target_population = ($result->zone_paddock_percentage/100)*$result->crop_target_population;
 			$zone_sample_counts[$result->zone_id]->zone_target_population = $zone_target_population;
-			$zone_population_estimate = self::zonePopulationEstimate($plot_population_average, $zone_area, $crop_bed_width);
+			//$zone_population_estimate = self::zonePopulationEstimate($plot_population_average, $zone_area, $crop_bed_width);
+			$zone_population_estimate = self::zonePopulationEstimate($plants_per_sqm, $zone_area);			
 			$zone_sample_counts[$result->zone_id]->zone_population_estimate = $zone_population_estimate;
 			$zone_sample_counts[$result->zone_id]->zone_difference = self::zonePopulationDifference($zone_target_population,$zone_population_estimate);	
 			
@@ -141,8 +166,9 @@ class ReportsModel
 				case 3: // five-leaf stage
 				case 4:	// bulbing stage					
 					//$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $crop_bed_width, $crop_sample_plot_width, $plot_population_average);
-					$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $plot_population_average);					
-					$gc_cm_plant_sqm = (10000*($result->ground_cover_average/100))/$plants_per_sqm;
+					//$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $plot_population_average);					
+					//$gc_cm_plant_sqm = (10000*($result->ground_cover_average/100))/$plants_per_sqm;
+					$gc_cm_plant_sqm = (100*$result->ground_cover_average)/$plants_per_sqm;					
 					$leaf_area_sqcm_plant_sqm = self::GroundCoverCMToLAI($gc_cm_plant_sqm);
 					$zone_sample_counts[$result->zone_id]->lai_estimate_cm_plant_sqm = $leaf_area_sqcm_plant_sqm;					
 										
@@ -186,16 +212,16 @@ class ReportsModel
 
 		$zone_sample_counts[$result->zone_id]->weighted_sum_three_leaf_yield = number_format(self::getPaddockYieldWeightedSumByGrowthStage(
 								$farm_id, $paddock_id, $crop_id, 2), 2, '.', ''); // three-leaf sum								
-		$zone_sample_counts[$result->zone_id]->three_leaf_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_three_leaf_yield/$result->paddock_area, 2, '.', '').' t/ha]';
+		$zone_sample_counts[$result->zone_id]->three_leaf_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_three_leaf_yield/$paddock_area, 2, '.', '').' t/ha]';
 		$zone_sample_counts[$result->zone_id]->weighted_sum_five_leaf_yield = number_format(self::getPaddockYieldWeightedSumByGrowthStage(
 								$farm_id, $paddock_id, $crop_id, 3), 2, '.', ''); // five-leaf sum
-		$zone_sample_counts[$result->zone_id]->five_leaf_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_five_leaf_yield/$result->paddock_area, 2, '.', '').' t/ha]';								
+		$zone_sample_counts[$result->zone_id]->five_leaf_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_five_leaf_yield/$paddock_area, 2, '.', '').' t/ha]';								
 		$zone_sample_counts[$result->zone_id]->weighted_sum_bulbing_yield = number_format(self::getPaddockYieldWeightedSumByGrowthStage(
 								$farm_id, $paddock_id, $crop_id, 4), 2, '.', ''); // bulbing sum
-		$zone_sample_counts[$result->zone_id]->bulbing_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_bulbing_yield/$result->paddock_area, 2, '.', '').' t/ha]';									
+		$zone_sample_counts[$result->zone_id]->bulbing_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_bulbing_yield/$paddock_area, 2, '.', '').' t/ha]';									
 		$zone_sample_counts[$result->zone_id]->weighted_sum_harvest_yield = number_format(self::getPaddockYieldWeightedSumByGrowthStage(
 								$farm_id, $paddock_id, $crop_id, 5), 2, '.', ''); // harvest sum
-		$zone_sample_counts[$result->zone_id]->harvest_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_harvest_yield/$result->paddock_area, 2, '.', '').' t/ha]';								
+		$zone_sample_counts[$result->zone_id]->harvest_tonnes_hectare = '['.number_format($zone_sample_counts[$result->zone_id]->weighted_sum_harvest_yield/$paddock_area, 2, '.', '').' t/ha]';								
 		
         return $zone_sample_counts;
     }
@@ -267,9 +293,10 @@ class ReportsModel
 		(float)$a = 0.183;		
 		(float)$b = 0.0498;
 	
-		$LAI = pow($a,$b) * (float)$gc_cm_plant_sqm;	
+		//$LAI = pow($a,$b) * (float)$gc_cm_plant_sqm;	
 		
-		return $LAI;	
+		//return $LAI;
+		return pow($a,$b) * (float)$gc_cm_plant_sqm;
 	}
 	
 	/* @
@@ -358,8 +385,7 @@ class ReportsModel
 		$min_leaf_area_cm_plant_sqm = $d['month'] < 8 ? $min_leaf_area_cm_plant_sqm : $min_leaf_area_cm_plant_sqm*0.9; // cm^2
 		
 		//$proportion_estimate = $zone_lai_estimate/$min_leaf_area_sqcm;
-		$proportion_estimate = $zone_mean_leaf_area_cm_plant_sqm/$min_leaf_area_cm_plant_sqm;	
-
+		$proportion_estimate = $zone_mean_leaf_area_cm_plant_sqm/$min_leaf_area_cm_plant_sqm;
 		
 		//$zone_area_yield_estimate = ($minimum_optimal_bulb_weight*$proportion_estimate)*$plot_population_average*0.01;
 		$zone_area_yield_estimate = ($minimum_optimal_bulb_weight*$proportion_estimate)*$zone_mean_plants_per_sqm*0.01;
@@ -370,19 +396,22 @@ class ReportsModel
 	
 	public static function minimumLeafArea($x) {
 		
+		/* 
+		Plant & Food Research -  Lower potential leaf area (cm2 per plant)
+		as determined from individual plant data collected at LandWise MicroFarm 2016/17
+		
+		Equation:
+		=========
+		leaf area = C / 1 + exp(-b(x-m))
+		
+		x = leaf number per plant 
+		*/
+		
 		(float)$C = 98.98;
 		(float)$b = 1.0266;
 		(float)$m = 5.783;
-		$min_leaf_area_cm_plant_sqm = 0;
-		
-		//echo print_r("x=".$x."</br>", true);
-		//$x=3;
-		$e = (float)(float)-$b*((float)$x-(float)$m);		
-		
-		//$min_leaf_area_cm_plant_sqm = $C/1+exp(((float)-$b*((float)$x -(float)$m)));
-		$min_leaf_area_cm_plant_sqm = (float)$C/(1+exp((float)$e));
-		//echo print_r("e=".$e." min_leafarea=".$min_leaf_area_cm_plant_sqm."</br>", true);
-		return $min_leaf_area_cm_plant_sqm;
+
+		return (float)$C/(1+exp((float)-$b*((float)$x-(float)$m)));
 	}
 	
 	public static function zoneGrowthStageMeanLeafNumber($growth_stage_id, $zone_id){
@@ -568,9 +597,11 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		return $percent_change;
 	}
 	
-	public static function zonePopulationEstimate($sample_average, $zone_area, $paddock_bed_width){
+	//public static function zonePopulationEstimate($sample_average, $zone_area, $paddock_bed_width){		
+	//	$zonePopulationEstimate = ($sample_average/$paddock_bed_width)*10000*$zone_area;
+	public static function zonePopulationEstimate($plants_per_sqm, $zone_area){
 		
-		$zonePopulationEstimate = ($sample_average/$paddock_bed_width)*10000*$zone_area;
+		$zonePopulationEstimate = $plants_per_sqm*10000*$zone_area;		
 		
 		return $zonePopulationEstimate;
 	}
@@ -890,8 +921,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		return $data;
 	}
 
-	public static function getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $crop_bed_width, $target_plants_sqm){
-
+	//public static function getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $crop_bed_width, $target_plants_sqm){
+	public static function getMeanPopulationByZone($crop_id, $crop_bed_width, $target_plants_sqm){
 /*		
 		$sql = "SELECT paddock_bed_width,paddock_target_population,paddock_area FROM paddock
 			WHERE paddock_id =:paddock_id";
@@ -905,7 +936,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		$plot_width = self::cropSamplePlotWidth($crop_id);
 		
 		$database = DatabaseFactory::getFactory()->getConnection();
-			
+		
+/*	
 		$sql = "SELECT 
 					z.zone_name, AVG(s.sample_count) as mean_population 
 				FROM 
@@ -920,9 +952,24 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 					s.paddock_id = :paddock_id 
 				GROUP BY s.zone_id
 				ORDER BY s.zone_id";
+				*/
+				
+		$sql = "SELECT 
+					z.zone_name, AVG(s.sample_count) as mean_population 
+				FROM 
+					sample s
+				INNER JOIN 
+					zone z
+				ON 
+					s.zone_id=z.zone_id					
+				WHERE 
+					s.growth_stage_id = 1 AND 
+					s.crop_id= :crop_id
+				GROUP BY s.zone_id
+				ORDER BY s.zone_id";				
 		
         $query = $database->prepare($sql);		
-        $query->execute(array(':farm_id' => $farm_id, ':paddock_id' => $paddock_id));
+        $query->execute(array(':crop_id' => $crop_id));
 
 		$data = array();
 		$r = 1;
@@ -1193,12 +1240,12 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		switch ((int)$growth_stage_id){
 			case 1:
 			
-				$sql = "SELECT paddock_area FROM paddock
+				$sql = "SELECT paddock_area, paddock_google_area FROM paddock
 					WHERE paddock_id =:paddock_id";
 				
 				$rs = self::getPaddockPropertiesByID($sql, $paddock_id);	
 				
-				$paddock_area = (float)$rs->paddock_area;
+				$paddock_area = ((float)$rs->paddock_google_area > 0) ? (float)$rs->paddock_google_area : (float)$rs->paddock_area;
 				
 				$sql = "SELECT crop_bed_width,crop_target_population FROM crop 
 				WHERE crop_id =:crop_id";
@@ -1211,7 +1258,8 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 				$title[0][1] = "Population";
 				$title[0][2] = "Target (".$target_plants_sqm."/sqm)";
 				// Todo 
-				$data = self::getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $rs->crop_bed_width, $target_plants_sqm);
+				//$data = self::getMeanPopulationByZone($farm_id, $paddock_id, $crop_id, $rs->crop_bed_width, $target_plants_sqm);
+				$data = self::getMeanPopulationByZone($crop_id, $rs->crop_bed_width, $target_plants_sqm);				
 				break;			
 			case 2:
 			case 3:
@@ -1295,6 +1343,7 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 		//$plot_width = Config::get('SAMPLE_PLOT_WIDTH');	
 		$plot_width = (float)$rs->crop_sample_plot_width;
 		
+		/*
 		$sql = "SELECT 
 				zone.zone_id, zone.zone_name, sample.zone_sample_plot_id,sample.sample_count,
 				sample.sample_ela_score, sample.sample_bulb_weight
@@ -1312,12 +1361,30 @@ public static function isGrowthLimited($growth_stage_id, $leaf_area_sqcm_plant_s
 			ORDER BY
 				zone.zone_id,
 				sample.zone_sample_plot_id";
+		*/		
+		$sql = "SELECT 
+				zone.zone_id, zone.zone_name, sample.zone_sample_plot_id,sample.sample_count,
+				sample.sample_ela_score, sample.sample_bulb_weight
+			FROM 
+				zone
+			JOIN 
+				sample
+			ON 
+				zone.zone_id = sample.zone_id
+			WHERE				
+				sample.growth_stage_id = :growth_stage_id AND
+				sample.crop_id = :crop_id 			
+			ORDER BY
+				zone.zone_id,
+				sample.zone_sample_plot_id";				
 		
 		$plots = $database->prepare($sql);
-		$plots->execute(array(':growth_stage_id' => $growth_stage_id,
+		/*$plots->execute(array(':growth_stage_id' => $growth_stage_id,
 							':crop_id' => $crop_id,
 							':paddock_id' => $paddock_id,
-							':farm_id' => $farm_id));
+							':farm_id' => $farm_id));*/
+		$plots->execute(array(':growth_stage_id' => $growth_stage_id,
+							':crop_id' => $crop_id));							
 		// initialise zone_id comparator
 		$id = 0;
 		while ( $plot = $plots->fetchObject() ) {
