@@ -30,7 +30,7 @@
 					</div>
 				</div>
 				<div class='float_left'><label for="sample_date">Sample Date</label>
-					<input type="date" name="sample_date" value="<?php echo date("Y-m-d"); ?>" required />
+					<input type="date" name="sample_date" id="sample_date" value="<?php echo date("Y-m-d"); ?>" required />
 				</div>
 				<div class='float_right'><label>Crop Zone</label>
 					<select name="zone_id" id="zone_id">
@@ -59,7 +59,7 @@
 							<tr>
 								<td style="padding:0px; margin:0px; width:50px;"><input style="padding: 0 0 0 0; text-align: center;" type="text" name="sample_id[]" value="<?= $sample_info->sample_id; ?>" tabindex="-1" readonly></td>
 								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=1 min=0 name="sample_count[]" id="sample_count_<?= $index; ?>" required></td>
-								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=0.01 min=0 name="sample_ela_score[]" required></td>
+								<td style="padding:0px; margin:0px; width:55px;"><input type="number" step=0.01 min=0 name="sample_ela_score[]" id="sample_ela_score_<?= $index; ?>" required></td>
 								<td style="padding:0px; margin:0px; height:37px; background-color: #fff;">
 									<div class="image-upload" id="image-upload_<?= $index; ?>">
 										<label class="sample_file_label" for="sample_file_<?= $index; ?>">
@@ -68,7 +68,7 @@
 									</div>								
 								</td>
 								<td class="col-last">
-									<input type="text" name="sample_comment[]" class="data-table">
+									<input type="text" name="sample_comment[]" id="sample_comment_<?= $index; ?>" class="data-table">
 								</td>
 							</tr>
 						<?php 

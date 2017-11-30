@@ -216,7 +216,7 @@ class CollectionController extends Controller
 			'crop_plant_date' => DatabaseCommon::getCropPlantDate($crop_id),
             'zone_info' => DatabaseCommon::getCropZones($crop_id),			
 			'sample_info' => DatabaseCommon::getZoneSamples($crop_id),
-			'population_info' => json_encode(CollectionModel::zonePopulationByGrowthStages($crop_id)),
+			'population_info' => base64_encode(json_encode(CollectionModel::zonePopulationByGrowthStages($crop_id, $growth_stage_id), JSON_HEX_APOS)),
             'growth_stage_id' => $growth_stage_id,
 			'farm_id' => $farm_id,
             'paddock_id' => $paddock_id,

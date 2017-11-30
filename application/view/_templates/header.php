@@ -92,11 +92,12 @@
 			case '3':	// growth_stage => five leaf 	
 				echo '<script src="'.Config::get('URL').'scripts/mean_leaf_number.js"></script>';
 				echo "\r\n\t";
-			case '4':	// growth_stage => bulbing
-				echo '<script src="'.Config::get('URL').'scripts/sample_populations.js"></script>';
-				echo "\r\n\t";			
+			case '1':	// growth_stage => emergence				
+			case '4':	// growth_stage => bulbing				
 			case '5':	// growth_stage => harvest	
 			case 'enterdata':
+				echo '<script src="'.Config::get('URL').'scripts/sample_populations.js"></script>';
+				echo "\r\n\t";			
 				echo '<script src="'.Config::get('URL').'scripts/imageEmail.js"></script>';
 				echo "\r\n\t";			
 				echo '<script src="'.Config::get('URL').'scripts/jquery-ajax-form-min.js"></script>';

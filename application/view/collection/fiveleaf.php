@@ -32,7 +32,7 @@
 					</div>
 				</div>
 				<div class='float_left'><label for="sample_date">Sample Date</label>
-					<input type="date" name="sample_date" value="<?php echo date("Y-m-d"); ?>" required />
+					<input type="date" name="sample_date" id="sample_date" value="<?php echo date("Y-m-d"); ?>" required />
 				</div>
 				<div class='float_right'><label>Crop Zone</label>
 					<select name="zone_id" id="zone_id">
@@ -70,7 +70,7 @@
 									</div>								
 								</td>
 								<td class="col-last">
-									<input type="text" name="sample_comment[]" class="data-table">
+									<input type="text" name="sample_comment[]" id="sample_comment_<?= $index; ?>" class="data-table">
 								</td>
 							</tr>
 						<?php 

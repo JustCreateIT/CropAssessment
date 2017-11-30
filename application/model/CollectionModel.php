@@ -358,16 +358,64 @@ class CollectionModel
         return false;
     }
 	
-	public static function zonePopulationByGrowthStages($crop_id){
+	public static function zonePopulationByGrowthStages($crop_id, $growth_stage_id){
 
-		if (!$crop_id) {
+		if (!$crop_id || !$growth_stage_id) {
             return null;
         }
+		//determine if samples exists for this growth_stage_id
+		if (DatabaseCommon::cropSamplesExist($crop_id, $growth_stage_id)) {
+			$gs = $growth_stage_id;
+			$sample_date = "sample_date, ";
+		}else{
+			$gs = 1;
+			$sample_date = "";
+		}
 		// iterate through each of the five growth stages to find population counts
 		// these are used to pre-populate collection forms
-		for ($i=1;$i<6;$i++){
+		for ($i=$gs;$i<6;$i++){
 			$database = DatabaseFactory::getFactory()->getConnection();
-			$sql = "SELECT sample_count, zone_id, zone_sample_plot_id FROM sample WHERE crop_id = :crop_id AND growth_stage_id = :growth_stage_id";		
+			switch ($gs){
+				case 1: // emergence data or no samples a growth stage yet					
+					$sql = "SELECT zone_sample_plot_id, ".$sample_date."sample_count, sample_comment, zone_id FROM sample WHERE crop_id = :crop_id AND growth_stage_id = :growth_stage_id";
+					break;
+				case 2: // threeleaf
+				case 3: // fiveleaf
+					/*
+					$sql = "SELECT 
+							s.zone_sample_plot_id, s.sample_date, s.sample_count, s.sample_comment, s.sample_ela_score, s.zone_id, l.mean_leaf_number 
+						FROM 
+							sample s
+						JOIN
+							 leaf_number l
+						ON	
+							s.zone_id=l.zone_id
+						WHERE 
+							s.crop_id = :crop_id 
+						AND s.growth_stage_id = :growth_stage_id
+						AND l.growth_stage_id = :growth_stage_id";
+					*/	
+					$sql="SELECT s.zone_sample_plot_id, s.sample_date, s.sample_count, s.sample_comment, s.sample_ela_score, 
+							s.zone_id, l.mean_leaf_number 
+							FROM sample s
+							LEFT JOIN 
+								leaf_number l
+							ON
+							s.zone_id = l.zone_id AND 
+							s.growth_stage_id = l.growth_stage_id
+							WHERE
+							(s.growth_stage_id=1 AND s.crop_id=:crop_id ) OR (s.growth_stage_id=:growth_stage_id AND s.crop_id=:crop_id )
+							AND s.crop_id=:crop_id  
+							GROUP BY s.zone_id, s.zone_sample_plot_id, s.growth_stage_id";
+					break;
+				case 4: // bulbing			
+					$sql = "SELECT zone_sample_plot_id, sample_date, sample_count, sample_comment, sample_ela_score, zone_id FROM sample WHERE crop_id = :crop_id AND growth_stage_id = :growth_stage_id";
+					break;
+				case 5: // harvest			
+					$sql = "SELECT zone_sample_plot_id, sample_date, sample_count, sample_comment, sample_bulb_weight, zone_id FROM sample WHERE crop_id = :crop_id AND growth_stage_id = :growth_stage_id";
+					break;
+				default:       
+			}				
 			$query = $database->prepare($sql);
 			$query->execute(array(':crop_id' => $crop_id, ':growth_stage_id' => $i));
 			if ($query->rowcount() > 0 ) {

@@ -20,7 +20,7 @@
 						<input type="text" style="background-color: transparent;"  name="crop_plant_date" id="crop_plant_date" value="<?php echo date_format(date_create($this->crop_plant_date), "Y-m-d") ?>" readonly/>
 					</div>
 				</div>
-				<div class='float_left'><label>Sample Date</label><input type="date" name="sample_date" value="<?php echo date("Y-m-d"); ?>" required /></div>
+				<div class='float_left'><label>Sample Date</label><input type="date" name="sample_date" id="sample_date" value="<?php echo date("Y-m-d"); ?>" required /></div>
 				<div class='float_right'><label>Crop Zone</label>
 				<select name="zone_id" id="zone_id">
 					<?php foreach ($this->zone_info as $zone_info) { ?>
@@ -56,7 +56,7 @@
 									</div>								
 								</td>
 								<td class="col-last">
-									<input type="text" name="sample_comment[]" class="data-table">
+									<input type="text" name="sample_comment[]" id="sample_comment_<?= $index; ?>" class="data-table">
 								</td>
 							</tr>
 						<?php 
