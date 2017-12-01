@@ -52,7 +52,7 @@ class Mail
      * @throws phpmailerException
      */
     public function sendMailWithPHPMailer(
-			$user_email, $from_email, $from_name, $subject, $body, $key=null)
+			$user_email, $from_email, $from_name, $subject, $body, $key=null, $bcc=null)
     {
         $mail = new PHPMailer;
 
@@ -91,6 +91,13 @@ class Mail
 		if (null !== AdminUserModel::getCurrent()->getCurrentUserEmail()){
 			$mail->addBCC(AdminUserModel::getCurrent()->getCurrentUserEmail());		
 		}
+		
+		if ($bcc !== null){
+			if ($bcc === true){
+				$mail->addBCC(Session::get('user_email'));			
+			}
+		}
+		
         $mail->Subject = $subject;
         $mail->Body = $body;
 		
@@ -132,13 +139,13 @@ class Mail
      * @param $body string full mail body text
      * @return bool the success status of the according mail sending method
      */
-    public function sendMail($user_email, $from_email, $from_name, $subject, $body, $key=null)
+    public function sendMail($user_email, $from_email, $from_name, $subject, $body, $key=null, $bcc=null)
     {
         if (Config::get('EMAIL_USED_MAILER') == "phpmailer") {
 
             // returns true if successful, false if not
             return $this->sendMailWithPHPMailer(
-                $user_email, $from_email, $from_name, $subject, $body, $key);
+                $user_email, $from_email, $from_name, $subject, $body, $key, $bcc);
         }
 
         if (Config::get('EMAIL_USED_MAILER') == "swiftmailer") {

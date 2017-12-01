@@ -26,12 +26,9 @@ class RegistrationModel
 		$user_phone_number = strip_tags(Request::post('user_phone_number'));
         $user_password_new = Request::post('user_password_new');
         $user_password_repeat = Request::post('user_password_repeat');
+		$user_account_type = strip_tags(Request::post('user_account_type')); // 9 = Farm owner/manager, 5 = Employee/contractor
 
         // stop registration flow if registrationInputValidation() returns false (= anything breaks the input check rules)
-        //$validation_result = self::registrationInputValidation(Request::post('captcha'), $user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat);
-		
-        //$validation_result = self::registrationInputValidation(Request::post('captcha'), $user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat);
-
         $validation_result = self::registrationInputValidation(Request::post('captcha'), $user_password_new, $user_password_repeat, $user_email, $user_email_repeat);		
         if (!$validation_result) {
             return false;
@@ -63,27 +60,21 @@ class RegistrationModel
         // generate random hash for email verification (40 char string)
         $user_activation_hash = sha1(uniqid(mt_rand(), true));
 
-        // write user data to database
-/*
-        if (!self::writeNewUserToDatabase($user_name, $user_password_hash, $user_email, time(), $user_activation_hash)) {
-            Session::add('feedback_negative', Text::get('FEEDBACK_ACCOUNT_CREATION_FAILED'));
-            return false; // no reason not to return false here
-        }
-*/		
 
-		// Default user_account_type=9 [user_account_name=>owner,user_account_id=>9]
-		// Current user_account_types [public=>1,standard=>5,owner=>9,administrator=>88]
-		$user_account_type=9;
+		// Available roles // Only owner & standard are exposed during registration
+		// user_account_type=9 = Farm owner/manager, [user_account_name=>owner,user_account_id=>9]
+		// user_account_type=5 = Employee/contractor, [user_account_name=>standard,user_account_id=>5]
+		// user_account_type=1 = Public/researcher, [user_account_name=>public,user_account_id=>1]
+		// user_account_type=88 = Administrator, [user_account_name=>administrator,user_account_id=>88]	
+
+        // write user data to database	
         if (!self::writeNewUserToDatabase($user_first_name, $user_last_name, $user_password_hash, $user_email, $user_phone_number, time(), $user_activation_hash, $user_account_type)) {
             Session::add('feedback_negative', Text::get('FEEDBACK_ACCOUNT_CREATION_FAILED'));
             return false; // no reason not to return false here
         }		
 
         // get user_id of the user that has been created, to keep things clean we DON'T use lastInsertId() here
-        //$user_id = UserModel::getUserIdByUsername($user_name);
-        $user_id = UserModel::getUserIdByUserEmail($user_email);	
-
-	
+        $user_id = UserModel::getUserIdByUserEmail($user_email);
 
         if (!$user_id) {
             Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
@@ -102,16 +93,18 @@ class RegistrationModel
         return false;
     }
 
-    public static function registerFarmUser(){	
+    public static function registerFarmUser($newfarmuser){	
 		
-		$user_first_name = strip_tags(Request::post('user_first_name'));
-        $user_last_name = strip_tags(Request::post('user_last_name'));        		
-        $user_email = strip_tags(Request::post('user_email_address'));
-        $user_email_repeat = $user_email;
-		$user_phone_number = strip_tags(Request::post('user_phone_number'));
-		$user_password = strip_tags(Request::post('user_password'));
-        $user_password_repeat = $user_password;
-		$farm_id = Request::post('farm_id');
+		$farm_id = $newfarmuser->farm_id;
+		$user_first_name = $newfarmuser->user_first_name;
+		$user_last_name = $newfarmuser->user_last_name;
+		$user_email = $newfarmuser->user_email;
+		$user_email_repeat = $newfarmuser->user_email_repeat;
+		$user_phone_number = $newfarmuser->user_phone_number;
+		$send_details_self = $newfarmuser->send_details_self;
+		
+		$user_password = self::generateRandomPassword();
+		$user_password_repeat = $user_password;
 		
 		// check email address and password
 		if (!self::validateUserEmail($user_email, $user_email_repeat) AND !self::validateUserPassword($user_password, $user_password_repeat)) {
@@ -120,7 +113,7 @@ class RegistrationModel
 		
 		// crypt the password with the PHP 5.5's password_hash() function, results in a 60 character hash string.
         // @see php.net/manual/en/function.password-hash.php for more, especially for potential options
-        $user_password_hash = password_hash($user_password_new, PASSWORD_DEFAULT);
+        $user_password_hash = password_hash($user_password, PASSWORD_DEFAULT);
 
 		// check if email already exists
 		if (UserModel::doesEmailAlreadyExist($user_email)) {
@@ -157,7 +150,7 @@ class RegistrationModel
 		}
 
 		// send verification email
-		if (self::sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash)) {
+		if (self::sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash, $send_details_self)) {
 			return true;
 		}
 
@@ -376,7 +369,7 @@ class RegistrationModel
      *
      * @return boolean gives back true if mail has been sent, gives back false if no mail could been sent
      */
-    public static function sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash)
+    public static function sendVerificationEmail($user_id, $farm_id, $user_email, $user_activation_hash, $send_to_self=null)
     {
         if(isset($farm_id) && !empty($farm_id)){
 			$farm_id_link = urlencode($farm_id) . '/';
@@ -385,7 +378,7 @@ class RegistrationModel
 		} else {
 			$farm_id_link = null;
 			$controllerView = Config::get('EMAIL_VERIFICATION_URL');
-			$mail_sent_success_message = Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_SUCCESSFUL');
+			//$mail_sent_success_message = Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_SUCCESSFUL');
 		}
 		
 		/*
@@ -397,11 +390,11 @@ class RegistrationModel
 		
 		$mail = new Mail;
         $mail_sent = $mail->sendMail($user_email, Config::get('EMAIL_VERIFICATION_FROM_EMAIL'),
-            Config::get('EMAIL_VERIFICATION_FROM_NAME'), Config::get('EMAIL_VERIFICATION_SUBJECT'), $body
+            Config::get('EMAIL_VERIFICATION_FROM_NAME'), Config::get('EMAIL_VERIFICATION_SUBJECT'), $body, null, $send_to_self
         );
 
 		//Session::add('feedback_negative', 'sendVerificationEmail: this is bullshit!. SMTPDebug:'.$mail->SMTPDebug());
-
+/*
         if ($mail_sent) {
             Session::add('feedback_positive', $mail_sent_success_message);
             return true;
@@ -409,6 +402,17 @@ class RegistrationModel
             Session::add('feedback_negative', Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_ERROR') . $mail->getError() );
             return false;
         }
+*/		
+		if(!$mail_sent){
+			Session::add('feedback_negative', Text::get('FEEDBACK_VERIFICATION_MAIL_SENDING_ERROR') . $mail->getError() );
+            return false;
+		}
+		
+		// Feedback for Farm owners / Managers when creating employee / contractor accounts
+		if(isset($farm_id) && !empty($farm_id)){
+			Session::add('feedback_positive', $mail_sent_success_message);
+		}
+		return true;
     }
 
     /**

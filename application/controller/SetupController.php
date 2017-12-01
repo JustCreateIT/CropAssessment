@@ -279,7 +279,16 @@ class SetupController extends Controller
 
 	public static function addFarmUser_action(){
 		
-		$farm_user_registration_successful = RegistrationModel::registerFarmUser();
+		$newfarmuser = new stdClass();
+		$newfarmuser->farm_id = Request::post('farm_id');		
+		$newfarmuser->user_first_name = strip_tags(Request::post('user_first_name'));
+		$newfarmuser->user_last_name = strip_tags(Request::post('user_last_name'));  
+		$newfarmuser->user_email = strip_tags(Request::post('user_email'));
+		$newfarmuser->user_email_repeat = strip_tags(Request::post('user_email_repeat'));
+		$newfarmuser->user_phone_number = strip_tags(Request::post('user_phone_number'));
+		$newfarmuser->send_details_self = null!==(Request::post('send_details_self')) ? true : false;
+		
+		$farm_user_registration_successful = RegistrationModel::registerFarmUser($newfarmuser);
 
 		//if ($farm_user_registration_successful) {
 			//Session::add('feedback_positive') = null;			
@@ -288,4 +297,14 @@ class SetupController extends Controller
 		//	Redirect::to('config/index');
 		//}
 	}	
+	
+		
+	public static function getAddFarmUserFeedbackResponse(){
+		
+		View::renderWithoutHeaderAndFooter('setup/response');		
+		// delete these messages (as they are not needed anymore and we want to avoid to show them twice
+        Session::set('feedback_positive', null);
+        Session::set('feedback_negative', null);
+			
+	}
 }
