@@ -13,3 +13,5 @@ config.*.php
 *.old
 #sql files
 *.sql
+public/error_log
+public/avatars/.htaccess
