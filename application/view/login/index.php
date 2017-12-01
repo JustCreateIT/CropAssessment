@@ -7,24 +7,24 @@
         <!--<div class="table-wrapper">-->
             <!-- login box  -->
             <div class="login-box">
-                <h2>Login here</h2>
+                <h1>Account Login</h1>
                 <form action="<?php echo Config::get('URL'); ?>login/login" method="post">
                     <!--<input type="text" name="user_name" placeholder="Username or email" required />-->
 					<input type="text" name="user_email" placeholder="Email Address" required />
                     <input type="password" name="user_password" placeholder="Password" required />
-					<?php
-					/*
-					<!--
+					
+					
+					<?php /*
                     <label for="set_remember_me_cookie" class="remember-me-label">                        
                         <input type="checkbox" name="set_remember_me_cookie" class="remember-me-checkbox" />Remember me (2 weeks)
                     </label>
-					-->
+					
                     <!-- when a user navigates to a page that's only accessible for logged a logged-in user, then
                          the user is sent to this page here, also having the page he/she came from in the URL parameter
                          (have a look). This "where did you came from" value is put into this form to sent the user back
                          there after being logged in successfully.
                          Simple but powerful feature, big thanks to @tysonlist. -->
-					*/ ?>
+					*/?>
                     <?php if (!empty($this->redirect)) { ?>
                         <input type="hidden" name="redirect" value="<?php echo $this->encodeHTML($this->redirect); ?>" />
                     <?php } ?>

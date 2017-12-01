@@ -191,8 +191,7 @@ select {
     margin-bottom: 10px;	*/
 }
 
-.container label {
-    
+.container label {    
     border: 0;
     padding: 0px 25px 0px 0px;
     width: 150px;
@@ -203,8 +202,10 @@ select {
 .adminBtn input[type="submit"]:hover,
 .adminBtn button:hover,
 .adminBtn button,
-.adminBtn button:focus{
+.adminBtn button:focus{	
+	text-align:center;
 	padding: 5px;
+	display:block;
 }
 
 .imgfit{
@@ -291,27 +292,37 @@ select {
 }
 
 /* Administrative profile overview */
+
+div.overview-table{
+	margin-top:10px;
+	padding-bottom:5px;
+	overflow-x:scroll;
+}
 .overview-table table {
 	display:inline-table;
-    min-width: 680px;
-	margin: 0px;
-	padding: 2px;
+	margin: 0 auto;
+	padding: 5px;
+	border-collapse:collapse;
+}
+
+.overview-table table tbody td{
+	padding: 1px 1px 5px 10px;
 }
 
 .overview-table thead {
-	font-size:1.1em;	
+	font-size:1.0em;	
 	font-weight:bolder;
+	
 }
 
 .overview-table thead td{
 	text-align:left;
 }
 
-
 .overview-table td {
 	text-align:center;
-	vertical-align:middle;
 	font-size:1.1em;
+	vertical-align:top;
 }
 
 .overview-table a{
@@ -330,7 +341,7 @@ select {
 
 .overview-table input[type="number"]
 {	
-	width: 30px;
+	width: 50px;
 }
 
 .overview-table input[type="checkbox"]{
@@ -356,6 +367,14 @@ select {
 	margin: 0px;
 }
 
+.overview-table thead th{
+	text-align:left;
+	padding: 7px;
+}
+.overview-table thead tr{
+	border-bottom: 2px;
+	border-color:#252525;
+}
 .bold_text {
 	font-weight: bold;
 }
@@ -487,11 +506,28 @@ div.table-edit {
 	margin:0;	
 }
 
+
 .form_input input[type="submit"]:hover
 	{
 	width: 150px;
 	padding:5px;
 	margin:0;
+}
+
+.submit input[type="submit"],
+	input[type="submit"]:active,
+	input[type="submit"]:visited
+	{
+	margin-bottom:0px;
+}
+
+
+.submit input[type="submit"]:hover
+	{
+	margin-bottom:10px;
+	width:100%;
+	padding: 15px 20px;
+	box-sizing: border-box;
 }
 
 
@@ -549,10 +585,10 @@ div.table-edit {
 }
 
 /* Dashboard buttons */
-div .app-button {
+div.app-button {
     width: 100%;
     display: inline-block;
-    margin: 0;
+    margin: 0 auto;
     color: #777;
     /*background-color: #f4f3f1;*/
 	background-color: #transparent;
@@ -565,11 +601,9 @@ div .app-button {
     background-color: transparent;
     border: 2px solid #777;
 	padding: 14.5px 20px;
-    margin-bottom: 10px;
+	margin:0;
+    margin-bottom: 10px;	
     display: block;
-    /*width: 49%;*/
-    width: auto;	
-	min-width: 250px;
     box-sizing: border-box; /* modern way to say width:100% without padding */
     text-transform: uppercase;
 	text-align: center;
@@ -607,10 +641,9 @@ div .app-button {
     box-sizing: border-box; /* modern way to say width:100% without padding */	
 }
 
-div.submit_float_left {
-	
+div.submit_float_left {	
 	width:50%;
-	margin: 0;
+	margin: 0 auto;
 	padding: 1px;
 	float:left;
 	box-sizing: border-box;
@@ -621,6 +654,7 @@ div.submit_float_left input[type="submit"]{
     cursor: pointer;
 	text-transform:uppercase;
 	width:100%;
+	margin: 0 auto;
 	padding: 15px 20px;
 	box-sizing:border-box;
 	-webkit-appearance:none;
@@ -844,13 +878,14 @@ div.submit_float_left input[type="submit"]:hover {
     width: 100%;
     box-sizing: border-box;
     font-weight: 400;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
 }
 
-.login-box h2 {
+.login-box h1 {
     color: #252525;
 }
 .login-box input[type="text"],
+.login-box input[type="email"],
 .login-box input[type="number"],
 .login-box input[type="password"] {
     font-family: Arial, sans-serif;
@@ -1040,7 +1075,6 @@ table.report-table {
 .responsive table thead tbody tfoot tr th td {
 	/*display:inline-table;*/
 	border-collapse: collapse;
-	
 		
 }
 

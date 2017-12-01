@@ -4,12 +4,10 @@
         <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>
         <h3>Link Farms to the current User</h3>
-        <div>
-            <table class="overview-table">			
+        <div class="overview-table">
+            <table class="overview-table">							
                 <thead>
                 <tr>                    				
-                    <!--<td>Avatar</td>-->
-					<td nowrap>User Id</td>
 					<td nowrap>Full Name</td>
 					<td>Available Farms</td>
 					<td>&nbsp;</td>
@@ -19,8 +17,8 @@
 				<tbody><?php if ($this->user) { ?>
 				<tr class="<?= ($this->user->user_active == 0 ? 'inactive' : 'active'); ?>">
 					<form action="<?= config::get("URL"); ?>admin/actionLinkFarmsToUser" method="post">
-					<td><?= $this->user->user_id; ?></td>
-					<td><?= $this->user->user_first_name; ?>&nbsp;<?= $this->user->user_last_name; ?></td>
+					<!--<td><?= $this->user->user_id; ?></td>-->
+					<td nowrap><?= $this->user->user_first_name; ?>&nbsp;<?= $this->user->user_last_name; ?></td>
 					<td>
 					<select id="source" size="<?= $this->farms_count; ?>" multiple style="width:250px;">
 					<?php foreach ( $this->unlinked_farm_users as $unlinked_farm_user ) { 
@@ -29,7 +27,7 @@
 						<?php } 
 					} ?>
 					</select></td>
-					<td class="adminBtn" align="center">
+					<td class="adminBtn">
 						<button type="button" id="btnAllRight">>></button>
 						<button type="button" id="btnRight">></button>
 						<button type="button" id="btnLeft"><</button>
@@ -50,7 +48,13 @@
 				</tr>
 				</tbody>
                 <?php } ?>
-            </table>			
+            </table>
+		
         </div>
+
     </div>
+	<!-- Return to previous selection page -->
+	<div class="app-button" style="margin: 0 auto;">                
+		<a style="margin: 0 auto;" href="<?php echo Config::get('URL'); ?>admin">Back</a>
+	</div>	
 </div>
