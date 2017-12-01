@@ -172,6 +172,26 @@ class DatabaseCommon
 		
         return $query->fetchAll();			
 	}
+	
+	public static function getLinkedFarmsByUserID()
+	{
+	    $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT farm_users.farm_id, farm.farm_name		
+			FROM 
+				farm
+			INNER JOIN
+				farm_users ON farm.farm_id = farm_users.farm_id
+			WHERE
+				user_id = :user_id
+			ORDER BY 
+				farm_users.user_id";	
+		
+        $query = $database->prepare($sql);
+        $query->execute(array(':user_id' => Session::get('user_id')));
+
+        return $query->fetchAll();			
+	}
 
 	
 	/**

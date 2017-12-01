@@ -15,7 +15,7 @@
 					</select>
 				</div>
 			<?php  } */?>
-			<button type="submit" name="setup" value="farm"><figure class="item">
+			<button type="submit" name="setup" value="farm" <?php if (Session::get('user_account_type') == 5) { echo 'disabled'; } ?>><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/farm_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Setup A New Farm</figcaption>
 			</figure></button>
@@ -27,7 +27,7 @@
 				<img src="<?php echo Config::get('URL'); ?>images/crop_setup.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Define A New Crop</figcaption>
 			</figure></button>
-			<button type="submit" name="setup" value="user" <?php if (count(Session::get('user_farms')) == 0) { echo 'disabled'; } ?>><figure class="item">
+			<button type="submit" name="setup" value="user" <?php if (count(Session::get('user_farms')) == 0 || Session::get('user_account_type') == 5) { echo 'disabled'; } ?>><figure class="item">
 				<img src="<?php echo Config::get('URL'); ?>images/add_user.png"/>
 				<figcaption class="responsive caption" data-min="10" data-max="18">Add Users To Your Farm</figcaption>
 			</figure></button>

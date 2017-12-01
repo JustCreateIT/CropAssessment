@@ -23,7 +23,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $this->View->render('user/index', array(
+        
+
+		
+		$this->View->render('user/index', array(
             //'user_name' => Session::get('user_name'),
             'user_first_name' => Session::get('user_first_name'),
             'user_last_name' => Session::get('user_last_name'),				
@@ -31,6 +34,7 @@ class UserController extends Controller
             'user_phone_number' => Session::get('user_phone_number'),				
             'user_gravatar_image_url' => Session::get('user_gravatar_image_url'),
             'user_avatar_file' => Session::get('user_avatar_file'),
+			'user_farms' => DatabaseCommon::getLinkedFarmsByUserID(),		
             'user_account_type' => Session::get('user_account_type')
         ));		
 

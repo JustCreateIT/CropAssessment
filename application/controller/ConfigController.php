@@ -84,12 +84,14 @@ class ConfigController extends Controller
     {
         
 		//$user_id = Session::get('user_id');
+		$farm_id = Session::get('_farm_id');
 		$paddock_id = Session::get('_paddock_id');
 		$crop_id = Session::get('_crop_id');
 		
 		$this->View->render('config/crops', array(
                 'paddock' => ConfigModel::getPaddock($paddock_id),
 				'crops' => ConfigModel::getCropsByPaddockID($paddock_id),
+				'paddocks' => ConfigModel::getPaddocksByFarmID($farm_id),
 				'variety_data' => ConfigModel::getVarietyData(),
 				'paddock_id' => $paddock_id,
 				'crop_id' => $crop_id
@@ -303,16 +305,6 @@ class ConfigController extends Controller
 			Redirect::to('config/index');
 		}
         
-    }
-	
-	
-	public static function getAddFarmUserFeedbackResponse(){
-		
-		View::renderWithoutHeaderAndFooter('config/response');		
-		// delete these messages (as they are not needed anymore and we want to avoid to show them twice
-        Session::set('feedback_positive', null);
-        Session::set('feedback_negative', null);
-			
-	}	
+    }	
 	
 }

@@ -32,8 +32,7 @@ class ConfigModel
 
         $sql = "SELECT * FROM crop WHERE paddock_id = :paddock_id";
         $query = $database->prepare($sql);
-        $query->execute(array(':paddock_id' => $paddock_id));		
-
+        $query->execute(array(':paddock_id' => $paddock_id));
         // fetchAll() is the PDO method that gets all result rows
         return $query->fetchAll();
     }
@@ -41,22 +40,18 @@ class ConfigModel
     public static function getCropsByCropID($crop_id)
     {
         $database = DatabaseFactory::getFactory()->getConnection();
-
         $sql = "SELECT crop_id FROM crop WHERE crop_id = :crop_id";
         $query = $database->prepare($sql);
-        $query->execute(array(':crop_id' => $crop_id));		
-
+        $query->execute(array(':crop_id' => $crop_id));	
         // fetchAll() is the PDO method that gets all result rows
         return $query->fetchAll();
     }	
 	
 	public static function getVarietyData(){
 	    $database = DatabaseFactory::getFactory()->getConnection();
-
         $sql = "SELECT variety_id, variety_name FROM variety";
         $query = $database->prepare($sql);
-        $query->execute();		
-
+        $query->execute();
         // fetchAll() is the PDO method that gets all result rows
         return $query->fetchAll();	
 	}

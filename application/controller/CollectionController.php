@@ -58,19 +58,19 @@ class CollectionController extends Controller
 		$page = Request::post('collection');
 		
 		switch ($page) {
-				case 'Enter Emergence Data':
+				case 'emergence':
 					Redirect::to('collection/growthstage/1');
 					break;			
-				case 'Enter Three Leaf Data':								
+				case 'threeleaf':								
 					Redirect::to('collection/growthstage/2');
 					break;
-				case 'Enter Five Leaf Data':					
+				case 'fiveleaf':					
 					Redirect::to('collection/growthstage/3');
 					break;			
-				case 'Enter Bulbing Data':								
+				case 'bulbing':								
 					Redirect::to('collection/growthstage/4');
 					break;
-				case 'Enter Harvest Data':					
+				case 'harvest':					
 					Redirect::to('collection/growthstage/5');
 					break;
 				default:

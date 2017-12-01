@@ -8,7 +8,6 @@
         <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>
 
-        <!--<div>Your username: <?= $this->user_name; ?></div>-->
 		<div>Full Name: <?= $this->user_first_name; ?> <?= $this->user_last_name; ?></div>
         <div>Email Address: <?= $this->user_email; ?></div>
 		<div>Phone Number: <?= $this->user_phone_number; ?></div>
@@ -29,18 +28,25 @@
 					echo 'Administrator';
 					break;
 				case 9:
-					echo 'Owner';
+					echo 'Farm Owner / Manager';
 					break;
 				case 5:
-					echo 'Standard User';
+					echo 'Employee / Contractor';
 					break;
 				case 1:
 					echo 'Public User';
 					break;					
 				default:
 					// To-do trap error
-			}
-			//($this->user_account_type == 7 ? 'Administrator' : 'Standard User'); ?>
+			}?>
 		</div>
+		<p></p>
+		<div>Associated Farms: </div>
+		<div>
+<textarea cols="75" rows="<?php echo count($this->user_farms)+1?>">
+<?php foreach($this->user_farms as $farm){
+echo $farm->farm_name."\n";
+} ?> 
+		</textarea></div>
     </div>
 </div>
