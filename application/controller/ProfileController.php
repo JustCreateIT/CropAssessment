@@ -16,7 +16,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $this->View->render('profile/index', array(
+        $this->View->render('profile/index', array(			
             'users' => UserModel::getPublicProfilesOfAllUsers())
         );
     }
@@ -30,6 +30,7 @@ class ProfileController extends Controller
     {
         if (isset($user_id)) {
             $this->View->render('profile/showProfile', array(
+				'user_farms' => DatabaseCommon::getLinkedFarmsByUserID(),
                 'user' => UserModel::getPublicProfileOfUser($user_id))
             );
         } else {

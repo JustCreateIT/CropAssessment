@@ -43,7 +43,7 @@
 		<p></p>
 		<div>Associated Farms: </div>
 		<div>
-<textarea cols="75" rows="<?php echo count($this->user_farms)+1?>">
+<textarea rows="<?php echo count($this->user_farms)+1?>">
 <?php foreach($this->user_farms as $farm){
 echo $farm->farm_name."\n";
 } ?> 

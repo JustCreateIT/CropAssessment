@@ -9,14 +9,14 @@
         <div>This page shows all public information about a certain user.</div>
 
         <?php if ($this->user) { ?>
-            <div>
+            <div style="overflow-x:auto;">
                 <table class="overview-table">
                     <thead>
                     <tr>
                         <td>Full Name</td>
                         <td>Email Address</td>	
-						<td>Phone Number</td>
-                        <td>Activated?</td>
+						<td>Phone #</td>
+                        <td>Activated</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -30,6 +30,14 @@
                     </tbody>
                 </table>
             </div>
+			<p></p>
+		<div>Associated Farms: </div>
+		<div>
+<textarea rows="<?php echo count($this->user_farms)+1?>">
+<?php foreach($this->user_farms as $farm){
+echo $farm->farm_name."\n";
+} ?> 
+		</textarea></div>
         <?php } ?>
 
     </div>
