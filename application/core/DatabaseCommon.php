@@ -173,7 +173,7 @@ class DatabaseCommon
         return $query->fetchAll();			
 	}
 	
-	public static function getLinkedFarmsByUserID()
+	public static function getLinkedFarmsByUserID($id = null)
 	{
 	    $database = DatabaseFactory::getFactory()->getConnection();
 
@@ -187,8 +187,14 @@ class DatabaseCommon
 			ORDER BY 
 				farm_users.user_id";	
 		
+		if (isset($id) && !empty($id)) {
+			$user_id = $id;
+		}else{
+			$user_id = Session::get('user_id');
+		}
+		
         $query = $database->prepare($sql);
-        $query->execute(array(':user_id' => Session::get('user_id')));
+        $query->execute(array(':user_id' => $user_id));
 
         return $query->fetchAll();			
 	}
