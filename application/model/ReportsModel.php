@@ -110,6 +110,20 @@ class ReportsModel
 			} */					
 			$zone_sample_counts[$result->zone_id] = new stdClass();
             $zone_sample_counts[$result->zone_id]->zone_id = $result->zone_id;
+			
+			// retrieve mean leaf number for the zone at growth stages 2 & 3
+			if ($growth_stage_id == 2 || $growth_stage_id == 3){
+				$sql = "SELECT mean_leaf_number
+						FROM 
+							leaf_number
+						WHERE 
+							growth_stage_id =:growth_stage_id
+							AND zone_id =:zone_id";			
+				$q= $database->prepare($sql);
+				$q->execute(array(':growth_stage_id' => $growth_stage_id,':zone_id' => $result->zone_id));
+				$zone_mean_leaf_number = $q->fetch()->mean_leaf_number;
+			}
+			
 			$plot_population_average = $result->sample_plant_average;
 			$crop_plant_date = $result->crop_plant_date;
 			$crop_bed_width = $result->crop_bed_width;
@@ -164,6 +178,7 @@ class ReportsModel
 					break;
 				case 2: // three-leaf stage
 				case 3: // five-leaf stage
+					$zone_sample_counts[$result->zone_id]->zone_mean_leaf_number = $zone_mean_leaf_number;	
 				case 4:	// bulbing stage					
 					//$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $crop_bed_width, $crop_sample_plot_width, $plot_population_average);
 					//$leaf_area_cm_plant_plot = (float)self::GroundCoverPercentToLAI($result->ground_cover_average, $plot_population_average);					
@@ -230,7 +245,7 @@ class ReportsModel
 		
 		$database = DatabaseFactory::getFactory()->getConnection();
 		
-		$sql = "SELECT paddock_area
+		$sql = "SELECT paddock_area, paddock_google_area
 				FROM paddock
 				WHERE farm_id = :farm_id
 				AND paddock_id = :paddock_id";
@@ -242,9 +257,12 @@ class ReportsModel
 		$paddock_area = 0;
 		$paddock_yield = 0;	
 		
+		$result = $query->fetch();
+		
 		if ($query->rowCount() == 1 ) {
 			//echo print_r($query->fetch()->yield_estimate, true);
-			$paddock_area =  $query->fetch()->paddock_area;
+			//$paddock_area =  $query->fetch()->paddock_area;
+			$paddock_area = $result->paddock_google_area != 0 ? $result->paddock_google_area : $result->paddock_area;
 			
 			$sql = "SELECT y.yield_estimate, z.zone_paddock_percentage
 				FROM yield y
@@ -404,7 +422,7 @@ class ReportsModel
 		=========
 		leaf area = C / 1 + exp(-b(x-m))
 		
-		x = leaf number per plant 
+		x = mean leaf number per plant 
 		*/
 		
 		(float)$C = 98.98;

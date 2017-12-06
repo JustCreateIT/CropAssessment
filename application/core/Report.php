@@ -797,14 +797,21 @@
 				<table class="report-table responsive" data-min="5" data-max="13" style="background-color:#777; margin-bottom:10px;text-transform: none;">
 					<thead style="height:100%">
 						<tr style="background-color: #ddd; color: #111;">
-							<th rowspan="2">Zone</th>
-							<th colspan="3">Canopy Assessments</th>
-							<th colspan="4">Yield Assessments</th>								
+							<th rowspan="2">Zone</th>';
+					if ($this->growth_stage_id != 4){
+						$html .= '<th colspan="4">Canopy Assessments</th>';
+					} else {
+						$html .= '<th colspan="3">Canopy Assessments</th>';
+					}		
+					$html .= '<th colspan="4">Yield Assessments</th>								
 						</tr>
 						<tr style="background-color: #ddd; color: #111;">							
 							<th>Average<br>Population<br>(plants/m<sup>2</sup>)</th>
-							<th>Average<br>Canopy Cover<br>(%)</th>
-							<th>Average<br>Leaf Area<br>(cm<sup>2</sup>/plant/m<sup>2)</th>
+							<th>Average<br>Canopy Cover<br>(%)</th>';
+					if ($this->growth_stage_id != 4){
+						$html .= '<th>Average<br>Leaf<br>Number</th>';
+					}		
+					$html .= '<th>Average<br>Leaf Area<br>(cm<sup>2</sup>/plant/m<sup>2)</th>
 							<th>Estimated<br>Yield<br>(t/ha)</th>
 							<th>Population<br>Limited</th>
 							<th>Growth<br>Limited</th>
@@ -816,8 +823,12 @@
 						$html .= '<tr style="background-color: #fff;">
 									<td style="text-align: center">'.$report_row->zone_name.'</td>
 									<td style="text-align: center">'.round($report_row->sample_plant_average, 2).'</td>
-									<td style="text-align: center">'.round($report_row->ground_cover_average, 2).'</td>
-									<td style="text-align: center">'.round($report_row->lai_estimate_cm_plant_sqm, 2).'</td>
+									<td style="text-align: center">'.round($report_row->ground_cover_average, 2).'</td>';
+						if ($this->growth_stage_id != 4){
+							$html .= '<td style="text-align: center">'.round($report_row->zone_mean_leaf_number, 2).'</td>';
+						}
+									
+						$html .= '<td style="text-align: center">'.round($report_row->lai_estimate_cm_plant_sqm, 2).'</td>
 									<td style="text-align: center">'.round($report_row->zone_target_yield, 2).'</td>
 									<td style="text-align: center">'.strtoupper($report_row->zone_population_limited_yield).'</td>
 									<td style="text-align: center">'.strtoupper($report_row->zone_growth_limited_yield).'</td>';
@@ -840,9 +851,15 @@
 						}
 						$html .= '</tr></tbody>';
 					}
-		$html .= '<tfoot><tr style="background-color: #eee; color: #111;">
-					<td colspan="4" style="text-align: right; font-weight: bold; padding:0.5em;">Area Weighted Estimate: Total Crop Yield (tonnes)</td>
+		$html .= '<tfoot><tr style="background-color: #eee; color: #111;">';
+		if ($this->growth_stage_id != 4){
+			$html .= '<td colspan="5" style="text-align: right; font-weight: bold; padding:0.5em;">Area Weighted Estimate: Total Crop Yield (tonnes)</td>
 					<td colspan="4" style="text-align: center; font-weight: bold; padding:0.5em;">';
+		}else{
+			$html .= '<td colspan="4" style="text-align: right; font-weight: bold; padding:0.5em;">Area Weighted Estimate: Total Crop Yield (tonnes)</td>
+					<td colspan="4" style="text-align: center; font-weight: bold; padding:0.5em;">';
+		}
+
 		switch ($this->growth_stage_id){
 			case 2:				
 				$html .= $report_row->weighted_sum_three_leaf_yield.' '.$report_row->three_leaf_tonnes_hectare;
