@@ -30,7 +30,7 @@ class ProfileController extends Controller
     {
         if (isset($user_id)) {
             $this->View->render('profile/showProfile', array(
-				'user_farms' => DatabaseCommon::getLinkedFarmsByUserID(),
+				'user_farms' => DatabaseCommon::getLinkedFarmsByUserID($user_id),
                 'user' => UserModel::getPublicProfileOfUser($user_id))
             );
         } else {
