@@ -26,6 +26,20 @@ $(document).ready(function(){
 			$("#paddock_id").val(p_id);
 		});		
 	});	
+	
+	$("#crop_id").change(function(){ 
+		// update on change (when multiple paddocks available)
+		var f_id = $( "#farm_id option:selected" ).val();
+		var p_id = $( "#paddock_id option:selected" ).val();
+		var c_id = $( "#crop_id option:selected" ).val();
+		addSelectOptions(f_id , p_id);
+		$(function() {
+			// make me selected
+			$("#farm_id").val(f_id);
+			$("#paddock_id").val(p_id);
+			$("#crop_id").val(c_id);
+		});		
+	});	
 });
 
 function removeChildren(){
