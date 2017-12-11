@@ -65,7 +65,7 @@ class ConfigModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT paddock_name, paddock_address, paddock_area 
+        $sql = "SELECT paddock_name, paddock_address, paddock_area, paddock_google_area 
 			FROM paddock 
 			WHERE paddock_id = :paddock_id";
         $query = $database->prepare($sql);
@@ -197,9 +197,11 @@ class ConfigModel
 	 * $farm_email_address, $farm_phone_number new details of the specific note
      * @return bool feedback (was the update successful ?)
      */
-    public static function updateCropByID($crop_id, $crop_zone_count, $crop_zone_sample_count, 
-				$crop_plant_date, $crop_bed_width, $crop_bed_rows, $crop_plant_spacing,
-				$crop_target_population, $variety_id)
+    //public static function updateCropByID($crop_id, $crop_zone_count, $crop_zone_sample_count, 
+	//			$crop_plant_date, $crop_bed_width, $crop_bed_rows, $crop_plant_spacing,
+	//			$crop_target_population, $variety_id)
+    public static function updateCropByID($crop_id, $crop_plant_date, $crop_bed_width, $crop_bed_rows, 
+		$crop_plant_spacing, $crop_target_population, $variety_id)				
     {
 		
 		if ( !$crop_id ) {			
@@ -214,15 +216,12 @@ class ConfigModel
 			crop_bed_rows = :crop_bed_rows,
 			crop_plant_spacing = :crop_plant_spacing,
 			crop_target_population = :crop_target_population,
-			crop_zone_count = :crop_zone_count,
-			crop_zone_sample_count = :crop_zone_sample_count,
 			variety_id = :variety_id  
 			WHERE crop_id = :crop_id";
         $query = $database->prepare($sql);
         $query->execute(array(':crop_plant_date' => $crop_plant_date, ':crop_bed_width' => $crop_bed_width,
 								':crop_bed_rows' => $crop_bed_rows, ':crop_plant_spacing' => $crop_plant_spacing, 
 								':crop_target_population' => $crop_target_population, 
-								':crop_zone_count' => $crop_zone_count, ':crop_zone_sample_count' => $crop_zone_sample_count, 
 								':variety_id' => $variety_id, ':crop_id' => $crop_id));
 
         if ($query->rowCount() == 1) {

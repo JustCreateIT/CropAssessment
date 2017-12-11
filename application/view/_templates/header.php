@@ -55,6 +55,9 @@
 				echo "\r\n\t";
 				echo '<script src="'.Config::get('URL').'scripts/farm_paddocks.js"></script>';
 				break;
+			case 'crops':
+				echo '<script src="'.Config::get('URL').'scripts/population.js"></script>';
+				break;			
 			case 'zones':
 				echo '<script src="'.Config::get('URL').'scripts/zones.js"></script>';
 				break;

@@ -6,7 +6,7 @@ $(document).ready(function(){
 		if ($("#crop_plant_spacing").val() > 0 && $("#crop_bed_width").val() > 0 && $("#crop_bed_rows").val() > 0) {			
 			$("#crop_target_population").val(calculateTargetPopulation());
 			jQuery("label[for='crop_target_population']").html("");
-			jQuery("label[for='crop_target_population']").html(population_label +' ['+$("#hectare_target_population").val()+'/ha]'+optimal_emergence_rate);
+			jQuery("label[for='crop_target_population']").html(population_label +' ['+$("#hectare_target_population").val()+'/ha @ '+optimal_emergence_rate+']');
 			//$("#paddock_target_population").val($("#paddock_target_population").val()+' ['+$("#hectare_target_population").val()+' t/ha]');
         }
     });		

@@ -84,17 +84,17 @@ class ConfigController extends Controller
     {
         
 		//$user_id = Session::get('user_id');
-		$farm_id = Session::get('_farm_id');
+		//$farm_id = Session::get('_farm_id');
 		$paddock_id = Session::get('_paddock_id');
-		$crop_id = Session::get('_crop_id');
+		//$crop_id = Session::get('_crop_id');
 		
 		$this->View->render('config/crops', array(
                 'paddock' => ConfigModel::getPaddock($paddock_id),
-				'crops' => ConfigModel::getCropsByPaddockID($paddock_id),
-				'paddocks' => ConfigModel::getPaddocksByFarmID($farm_id),
+				//'paddocks' => ConfigModel::getPaddocksByFarmID($farm_id),
+				'crops' => ConfigModel::getCropsByPaddockID($paddock_id),				
 				'variety_data' => ConfigModel::getVarietyData(),
-				'paddock_id' => $paddock_id,
-				'crop_id' => $crop_id
+				//'paddock_id' => $paddock_id,
+				//'crop_id' => $crop_id
         ));
     }
 
@@ -275,13 +275,10 @@ class ConfigController extends Controller
 	
 	 public function configUpdateDeleteCrop()
     {
-		$return = Request::post('return_page');
 		$crop_id = Request::post('crop_id');
 		if (Request::post('submit') == 'Update') {		
 			$success = ConfigModel::updateCropByID(
 				$crop_id,
-				Request::post('crop_zone_count'),
-				Request::post('crop_zone_sample_count'),
 				Request::post('crop_plant_date'),
 				Request::post('crop_bed_width'),
 				Request::post('crop_bed_rows'),
@@ -296,7 +293,7 @@ class ConfigController extends Controller
 		if ($success==true) {
 			$crops_exist = ConfigModel::cropsExist($crop_id);
 			if ($crops_exist) {
-				Redirect::to($return);			
+				Redirect::to('config/crops');			
 			} else {				
 				Redirect::to('config/index');
 			}
