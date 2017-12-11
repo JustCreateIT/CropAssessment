@@ -49,6 +49,8 @@
 				break;
 			case 'paddock':
 				echo '<script src="'.Config::get('URL').'scripts/paddocks.js"></script>';
+				echo "\r\n\t";
+				echo '<script src="'.Config::get('URL').'scripts/edit_polygon.js"></script>';
 				break;
 			case 'crop':
 				echo '<script src="'.Config::get('URL').'scripts/crops.js"></script>';

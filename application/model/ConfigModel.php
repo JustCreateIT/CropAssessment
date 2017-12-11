@@ -157,6 +157,26 @@ class ConfigModel
         return false;
     }
 	
+	public static function updatePaddockPolygon($farm_id, $paddock_id, $paddock_google_area, $paddock_google_latlong_paths){
+
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "UPDATE paddock SET 
+			paddock_google_latlong_paths = :paddock_google_latlong_paths,
+			paddock_google_area = :paddock_google_area
+			WHERE farm_id = :farm_id AND paddock_id = :paddock_id";
+
+		$query = $database->prepare($sql);
+		
+        $query->execute(array(':paddock_google_latlong_paths' => $paddock_google_latlong_paths, 
+							':paddock_google_area' => $paddock_google_area,
+							':farm_id' => $farm_id, 
+							':paddock_id' => $paddock_id));
+        if ($query->rowCount() == 1) {
+			Session::add('feedback_positive', Text::get('FEEDBACK_PADDOCK_EDITING_SUCCESSFUL'));            
+        }
+	}
+	
     /**
      * Update an existing Paddock
      * @param int $paddock_id id of the specific paddock

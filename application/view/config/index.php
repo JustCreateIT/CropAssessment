@@ -34,9 +34,9 @@
 					<img src="<?php echo Config::get('URL'); ?>images/paddock_edit.png"/>
 					<figcaption class="caption">Edit Paddock Information</figcaption>
 				</figure></button>
-				<button type="submit" name="config" value="View Paddock" <?php if($this->crop_info==0){ echo 'disabled'; } ?>><figure class="item">
+				<button type="submit" name="config" value="Edit Paddock Polygon" <?php if($this->crop_info==0){ echo 'disabled'; } ?>><figure class="item">
 					<img src="<?php echo Config::get('URL'); ?>images/paddock_view.png"/>
-					<figcaption class="caption">View Paddock Map</figcaption>
+					<figcaption class="caption">Edit Paddock Map</figcaption>
 				</figure></button>
 				<button type="submit" name="config" value="Edit Crop" <?php if($this->crop_info==0){ echo 'disabled'; } ?>><figure class="item">
 					<img src="<?php echo Config::get('URL'); ?>images/crop_edit.png"/>

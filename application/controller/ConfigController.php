@@ -80,6 +80,26 @@ class ConfigController extends Controller
         ));
     }
 	
+	public function paddock()
+    {
+		
+		$farm_id = Session::get('_farm_id');
+		$paddock_id = Session::get('_paddock_id');
+		$crop_id = Session::get('_crop_id');					
+
+		$this->View->render('config/paddock', array(
+			'management_zone_map' => $farm_id.'_'.$paddock_id.'_'.$crop_id.'.kmz',
+			'paddock_google_latlong_paths' => json_decode(ConfigModel::getPaddockPolygonPathByID($paddock_id)),
+			'farm_id' => $farm_id,
+			'farm_name' => DatabaseCommon::getFarmNameByID($farm_id),									
+			'paddock_id' => $paddock_id,
+			'paddock_name' => DatabaseCommon::getPaddockNameByID($paddock_id),
+			'paddock_plant_date' => DatabaseCommon::getCropPlantDate($crop_id),
+			'paddock_zones' => DatabaseCommon::getCropZoneCount($crop_id),			
+			'paddock_zone_sample_count' => DatabaseCommon::getCropZoneSampleCountByCropID($crop_id)
+        ));
+	}	
+	
 	public function crops()
     {
         
@@ -126,6 +146,19 @@ class ConfigController extends Controller
         ));
 	}		
 	
+	public static function editPaddock_action(){	
+
+        if ( Request::post('paddock_google_area') !== "") {
+			ConfigModel::updatePaddockPolygon(	
+				Request::post('farm_id'),
+				Request::post('paddock_id'),
+				Request::post('paddock_google_area'),	
+				json_encode(Request::post('paddock_google_latlong_paths')));
+        }		
+		// display messages & ...
+		Redirect::to('config/paddock');
+	}
+	
 	
 	// Main page marshalling method for edit section/controller
 	public static function selection_action(){
@@ -153,7 +186,7 @@ class ConfigController extends Controller
 					Redirect::to('config/crops');					
 					//self::editPaddock();
 					break;			
-				case 'edit paddock':
+				case 'edit paddocks':
 					//Redirect::to('edit/editPaddock');
 					Redirect::to('config/paddocks');					
 					//self::editPaddock();
@@ -163,8 +196,8 @@ class ConfigController extends Controller
 					Redirect::to('config/farms');					
 					//self::editFarm();
 					break;	
-				case 'view paddock':
-					Redirect::to('config/viewPaddock');
+				case 'edit paddock polygon':
+					Redirect::to('config/paddock');
 					break;			
 				case 'view weather':								
 					Redirect::to('config/viewWeather');
